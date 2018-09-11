@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Peachpie.Library" Version="0.9.0-CI01042" />
+    <PackageReference Include="Peachpie.Library.Graphics" Version="0.9.0-CI01042" />
+    <PackageReference Include="Peachpie.Library.MySql" Version="0.9.0-CI01042" />
+    <PackageReference Include="Peachpie.Library.Network" Version="0.9.0-CI01042" />
+    <PackageReference Include="Peachpie.Library.Scripting" Version="0.9.0-CI01042" />
+    <PackageReference Include="Peachpie.Runtime" Version="0.9.0-CI01042" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SME.Shared\SME.Shared.csproj" />
+  </ItemGroup>
+
+</Project>
