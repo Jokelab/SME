@@ -9,6 +9,10 @@ namespace SME.Shared
         public string Name { get; set; }
         public int Level { get; set; }
 
- 
+        /// <summary>
+        /// If it is an input channel, then this refers to the level after running the sanitize method.
+        /// </summary>
+        public int? SanitizedLevel { get; set; }
+
     }
 }

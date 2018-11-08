@@ -22,6 +22,12 @@ namespace SME.Cli
             var scheduler = factory.CreateScheduler();
             foreach (var version in result.CodeTransformations)
             {
+                string filename = Path.GetFileNameWithoutExtension(fullPath);
+                string outputPath = fullPath.Replace(filename, $"{filename}.{version.Level.Name}");
+                
+                //write code transformation to output
+                File.WriteAllText(outputPath, version.Code);
+
                 System.Console.WriteLine("Now executing level " + version.Level.Name + ":");
                 scheduler.Run(version.Code, args);
                 System.Console.Write("\n\n");
@@ -41,6 +47,7 @@ namespace SME.Cli
             //input channels
             policy.InputLabels.Add(new ChannelLabel() { Name = "_GET", Level = 1 });
             policy.InputLabels.Add(new ChannelLabel() { Name = "_POST", Level = 1 });
+            policy.InputLabels.Add(new ChannelLabel() { Name = "_COOKIE", Level = 1 });
 
             //output channels
             policy.OutputLabels.Add(new ChannelLabel() { Name = "mysql_query", Level = 2 });

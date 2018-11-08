@@ -8,13 +8,21 @@ namespace SME.Scheduler.Php
 {
     public class PhpScheduler : IScheduler
     {
+        private PhpScriptEvaluator _evaluator;
+
+        public PhpScheduler()
+        {
+            _evaluator = new PhpScriptEvaluator();
+        }
+
         public void Run(string code, string[] args)
         {
             PhpArray get = new PhpArray();
-            get["id"] = PhpValue.Create(999);
+            get["id"] = PhpValue.Create(args[0]);
             PhpArray post = new PhpArray();
             PhpArray cookies = new PhpArray();
-            PhpScriptEvaluator.Evaluate(code, get, post, cookies); ;
+            
+            _evaluator.Evaluate(code, get, post, cookies); ;
         }
     }
 }

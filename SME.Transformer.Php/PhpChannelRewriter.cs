@@ -59,7 +59,7 @@ namespace SME.Transformer.Php
                 //construct a new call to the capture_output function
                 var name = new TranslatedQualifiedName(new QualifiedName(new Name("capture_output")), new Span());
                 var parameters = new List<ActualParam>();
-                parameters.Add(new ActualParam(new Span(), new DoubleLiteral(new Span(), outputChannel.Id)));
+                parameters.Add(new ActualParam(new Span(), new LongIntLiteral(new Span(), outputChannel.Id)));
                 if (node.CallSignature.Parameters.Length > 0)
                 {
                     parameters.Add(node.CallSignature.Parameters[0]);

@@ -44,6 +44,7 @@ namespace SME.Transformer.Php
         /// <param name="node"></param>
         public override void VisitDirectFcnCall(DirectFcnCall node)
         {
+            
             var outputLabel = FindOutputLabel(node);
             if (outputLabel != null)
             {

@@ -56,7 +56,7 @@ namespace SME.Transformer.Php
             var poRewriter = new PhpChannelRewriter(new TreeContext(ast), poComposer, provider, nodesFactory, policy, collector.GetInputChannels(), collector.GetOutputChannels(), new SecurityLevel() { Level = 0, Name = "Original" });
             poRewriter.VisitElement(ast);
             po.Code = poComposer.Code.ToString();
-            po.Level = new SecurityLevel() { Level = 0, Name = "Original" };
+            po.Level = new SecurityLevel() { Level = 0, Name = "PO" };
             result.CodeTransformations.Add(po);
 
             return result;
