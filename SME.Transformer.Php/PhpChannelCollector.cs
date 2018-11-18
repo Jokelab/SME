@@ -9,8 +9,9 @@ namespace SME.Transformer.Php
 {
     public class PhpChannelCollector : TokenVisitor
     {
-        public List<Channel> _inputChannels = new List<Channel>();
-        public List<Channel> _outputChannels = new List<Channel>();
+        public List<Channel> InputChannels = new List<Channel>();
+        public List<Channel> OutputChannels = new List<Channel>();
+        public List<Channel> SanitizeChannels = new List<Channel>();
 
         private int _uniqueId { get; set; }
 
@@ -32,7 +33,7 @@ namespace SME.Transformer.Php
             if (inputLabel != null)
             {
                 var channel = new Channel() { Id = _uniqueId, Label = inputLabel, Location = new PhpSourceLocation(node.Span) };
-                _inputChannels.Add(channel);
+                InputChannels.Add(channel);
                 _uniqueId++;
             }
             base.VisitItemUse(node);
@@ -49,9 +50,19 @@ namespace SME.Transformer.Php
             if (outputLabel != null)
             {
                 var channel = new Channel() { Id = _uniqueId, Label = outputLabel, Location = new PhpSourceLocation(node.Span) };
-                _outputChannels.Add(channel);
+                OutputChannels.Add(channel);
                 _uniqueId++;
             }
+
+            var sanitizeLabel = FindSanitizeLabel(node);
+            if (sanitizeLabel != null)
+            {
+                var channel = new Channel() { Id = _uniqueId, Label = sanitizeLabel, Location = new PhpSourceLocation(node.Span) };
+                SanitizeChannels.Add(channel);
+                _uniqueId++;
+            }
+
+
 
             base.VisitDirectFcnCall(node);
         }
@@ -68,7 +79,7 @@ namespace SME.Transformer.Php
 
             if (varUse != null && arrayKey != null)
             {
-                return _policy.InputLabels.FirstOrDefault(channel => channel.Name.Equals(varUse.VarName.Value));
+                return _policy.Input.FirstOrDefault(channel => channel.Name.Equals(varUse.VarName.Value));
             }
 
             return null;
@@ -83,31 +94,27 @@ namespace SME.Transformer.Php
         private ChannelLabel FindOutputLabel(DirectFcnCall node)
         {
             var functionName = node.FullName.Name.QualifiedName.Name.Value;
-            return _policy.OutputLabels.FirstOrDefault(channel => channel.Name.Equals(functionName));
-
+            return _policy.Output.FirstOrDefault(channel => channel.Name.Equals(functionName));
         }
 
-        public List<Channel> GetInputChannels()
+        private ChannelLabel FindSanitizeLabel(DirectFcnCall node)
         {
-            return _inputChannels;
+            var functionName = node.FullName.Name.QualifiedName.Name.Value;
+            return _policy.Sanitize.FirstOrDefault(channel => channel.Name.Equals(functionName));
         }
 
-        public List<Channel> GetOutputChannels()
-        {
-            return _outputChannels;
-        }
 
         public List<SecurityLevel> GetDistinctSecurityLevels()
         {
             var distinctLevels = new List<int>();
-            foreach (var inputChannel in _inputChannels)
+            foreach (var inputChannel in InputChannels)
             {
                 if (!distinctLevels.Contains(inputChannel.Label.Level))
                 {
                     distinctLevels.Add(inputChannel.Label.Level);
                 }
             }
-            foreach (var outputChannel in _outputChannels)
+            foreach (var outputChannel in OutputChannels)
             {
                 if (!distinctLevels.Contains(outputChannel.Label.Level))
                 {

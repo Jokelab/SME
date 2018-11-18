@@ -12,7 +12,7 @@ namespace SME.Shared
         /// <summary>
         /// If it is an input channel, then this refers to the level after running the sanitize method.
         /// </summary>
-        public int? SanitizedLevel { get; set; }
+        public int? TargetLevel { get; set; }
 
     }
 }

@@ -6,7 +6,6 @@ namespace SME.Shared
 {
     public interface IScheduler
     {
-        void Run(string code, string[] args);
-      
+        void Schedule(IEnumerable<CodeTransformation> codeTransformations, string[] args);
     }
 }

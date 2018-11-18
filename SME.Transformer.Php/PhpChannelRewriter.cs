@@ -3,8 +3,6 @@ using Devsense.PHP.Syntax.Ast;
 using Devsense.PHP.Text;
 using SME.Shared;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace SME.Transformer.Php
 {
@@ -14,13 +12,18 @@ namespace SME.Transformer.Php
         private readonly BasicNodesFactory _factory;
         private readonly List<Channel> _outputChannels;
         private readonly List<Channel> _inputChannels;
+        private readonly List<Channel> _sanitizeChannels;
         private readonly SecurityLevel _securityLevel;
-        public PhpChannelRewriter(TreeContext treeContext, ITokenComposer tokenComposer, ISourceTokenProvider sourceTokenProvider, BasicNodesFactory fac, IPolicy policy, List<Channel> inputChannels, List<Channel> outputChannels, SecurityLevel level)
-            : base(treeContext, tokenComposer, sourceTokenProvider) { 
+
+        private List<int> _visitedChannels = new List<int>();
+        public PhpChannelRewriter(TreeContext treeContext, ITokenComposer tokenComposer, ISourceTokenProvider sourceTokenProvider, BasicNodesFactory fac, IPolicy policy, List<Channel> inputChannels, List<Channel> outputChannels, List<Channel> sanitizeChannels, SecurityLevel level)
+            : base(treeContext, tokenComposer, sourceTokenProvider)
+        {
             _factory = fac;
             _policy = policy;
             _inputChannels = inputChannels;
             _outputChannels = outputChannels;
+            _sanitizeChannels = sanitizeChannels;
             _securityLevel = level;
         }
 
@@ -37,7 +40,7 @@ namespace SME.Transformer.Php
                 else
                 {
                     //insert a default value
-                    var emptyString = _factory.Literal(new Span(0,2), "''", "''");
+                    var emptyString = _factory.Literal(new Span(0, 2), "''", "''");
                     base.VisitElement(emptyString);
                 }
 
@@ -53,41 +56,87 @@ namespace SME.Transformer.Php
         public override void VisitDirectFcnCall(DirectFcnCall node)
         {
             var outputChannel = FindChannel(node, _outputChannels);
+            var sanitizeChannel = FindChannel(node, _sanitizeChannels);
             if (outputChannel != null)
             {
-                
-                //construct a new call to the capture_output function
-                var name = new TranslatedQualifiedName(new QualifiedName(new Name("capture_output")), new Span());
-                var parameters = new List<ActualParam>();
-                parameters.Add(new ActualParam(new Span(), new LongIntLiteral(new Span(), outputChannel.Id)));
-                if (node.CallSignature.Parameters.Length > 0)
+                RewriteOutputChannel(outputChannel, node);
+
+            }
+            else if (sanitizeChannel != null)
+            {
+                //keep track of visited channels
+                if (!_visitedChannels.Contains(sanitizeChannel.Id))
                 {
-                    parameters.Add(node.CallSignature.Parameters[0]);
+                    _visitedChannels.Add(sanitizeChannel.Id);
+                    //rewrite sanitize channel
+                    RewriteSanitizeChannel(sanitizeChannel, node);
                 }
-
-                var signature = new CallSignature(parameters, new Span());
-                //let factory create a new DirectFcnCall AST node.
-                var captureOutputCall = (DirectFcnCall)_factory.Call(new Span(), name, signature, node.IsMemberOf);
-
-                //visit the new call
-                base.VisitDirectFcnCall(captureOutputCall);
-
-                //an output channel is only allowed at the corresponding security level
-                if (outputChannel.Label.Level == _securityLevel.Level)
+                else
                 {
-                    //add a semicolon between the new call and the original call
-                    base.VisitEmptyStmt((EmptyStmt)_factory.EmptyStmt(new Span(0, 1)));
-
-                    //visit the original call
                     base.VisitDirectFcnCall(node);
                 }
             }
-
             else
             {
                 //no special treatment for this function call
                 base.VisitDirectFcnCall(node);
             }
+        }
+
+        private void RewriteOutputChannel(Channel outputChannel, DirectFcnCall node)
+        {
+            //construct a new call to the capture_output function
+            var name = new TranslatedQualifiedName(new QualifiedName(new Name("capture_output")), new Span());
+            var parameters = new List<ActualParam>();
+            parameters.Add(new ActualParam(new Span(), new LongIntLiteral(new Span(), outputChannel.Id)));
+            if (node.CallSignature.Parameters.Length > 0)
+            {
+                parameters.Add(node.CallSignature.Parameters[0]);
+            }
+
+            var signature = new CallSignature(parameters, new Span());
+            //let factory create a new DirectFcnCall AST node.
+            var captureOutputCall = (DirectFcnCall)_factory.Call(new Span(), name, signature, node.IsMemberOf);
+
+            //visit the new call
+            base.VisitDirectFcnCall(captureOutputCall);
+
+            //an output channel is only allowed at the corresponding security level
+            if (outputChannel.Label.Level == _securityLevel.Level)
+            {
+                //add a semicolon between the new call and the original call
+                base.VisitEmptyStmt((EmptyStmt)_factory.EmptyStmt(new Span(0, 1)));
+
+                //visit the original call
+                base.VisitDirectFcnCall(node);
+            }
+        }
+
+        private void RewriteSanitizeChannel(Channel sanitizeChannel, DirectFcnCall node)
+        {
+            //construct a new call to the capture_output function
+            var name = new TranslatedQualifiedName(new QualifiedName(new Name("capture_sanitize")), new Span());
+            var parameters = new List<ActualParam>();
+            parameters.Add(new ActualParam(new Span(), new LongIntLiteral(new Span(), sanitizeChannel.Id)));
+            parameters.Add(new ActualParam(new Span(), node));
+
+
+            var signature = new CallSignature(parameters, new Span());
+            //let factory create a new DirectFcnCall AST node.
+            var captureSanitizeCall = (DirectFcnCall)_factory.Call(new Span(), name, signature, node.IsMemberOf);
+
+            //visit the new call
+            base.VisitDirectFcnCall(captureSanitizeCall);
+
+            //an output channel is only allowed at the corresponding security level
+            //if (sanitizeChannel.Label.Level == _securityLevel.Level)
+            //{
+            //    //add a semicolon between the new call and the original call
+            //    base.VisitEmptyStmt((EmptyStmt)_factory.EmptyStmt(new Span(0, 1)));
+
+            //    //visit the original call
+            //    base.VisitDirectFcnCall(node);
+            //}
         }
 
         /// <summary>

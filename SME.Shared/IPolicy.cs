@@ -5,8 +5,9 @@ namespace SME.Shared
     public interface IPolicy
     {
         List<SecurityLevel> Levels { get; }
-        List<ChannelLabel> InputLabels { get;  }
-        List<ChannelLabel> OutputLabels { get;  }
-        
+        List<ChannelLabel> Input { get; }
+        List<ChannelLabel> Output { get; }
+        List<ChannelLabel> Sanitize { get; }
+
     }
 }

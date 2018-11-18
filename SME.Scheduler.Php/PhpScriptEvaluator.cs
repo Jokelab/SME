@@ -21,6 +21,7 @@ namespace SME.Scheduler.Php
             {
                 //declare a method that captures the output
                 ctx.DeclareFunction("capture_output", new Action<int, string>((id, val) => ctx.Echo($"Captured value for channel {id}: {val}\n")));
+                ctx.DeclareFunction("capture_sanitize", new Func<int, string, object>((id, val) => { ctx.Echo($"Captured sanitized value for channel {id}: {(val != null ? val.ToString() : string.Empty)}\n"); return val; }));
                 ctx.Get = getVariables;
                 ctx.Post = postVariables;
                 ctx.Cookie = cookieVariables;

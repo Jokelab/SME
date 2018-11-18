@@ -14,25 +14,18 @@ namespace SME.Cli
             var fullPath = Path.Combine(currentPath, "Sample.php");
             var content = File.ReadAllText(fullPath);
 
-            var factory = FactoryProducer.GetFactory(Path.GetExtension(fullPath)); 
+            //create factory based on the file extension
+            var factory = FactoryProducer.GetFactory(Path.GetExtension(fullPath));
+
+            //construct transformer and apply transformations
             var transformer = factory.CreateTransformer();
-            var result = transformer.Transform(content, policy);
+            var transformations = transformer.Transform(content, policy);
 
+            transformations.SaveTransformations(fullPath);
 
+            //construct scheduler and schedule the code for execution
             var scheduler = factory.CreateScheduler();
-            foreach (var version in result.CodeTransformations)
-            {
-                string filename = Path.GetFileNameWithoutExtension(fullPath);
-                string outputPath = fullPath.Replace(filename, $"{filename}.{version.Level.Name}");
-                
-                //write code transformation to output
-                File.WriteAllText(outputPath, version.Code);
-
-                System.Console.WriteLine("Now executing level " + version.Level.Name + ":");
-                scheduler.Run(version.Code, args);
-                System.Console.Write("\n\n");
-            }
-    
+            scheduler.Schedule(transformations.CodeTransformations, args);
 
             System.Console.ReadKey();
         }
@@ -45,12 +38,15 @@ namespace SME.Cli
             policy.Levels.Add(new SecurityLevel() { Name = "H", Level = 2 });
 
             //input channels
-            policy.InputLabels.Add(new ChannelLabel() { Name = "_GET", Level = 1 });
-            policy.InputLabels.Add(new ChannelLabel() { Name = "_POST", Level = 1 });
-            policy.InputLabels.Add(new ChannelLabel() { Name = "_COOKIE", Level = 1 });
+            policy.Input.Add(new ChannelLabel() { Name = "_GET", Level = 1 });
+            policy.Input.Add(new ChannelLabel() { Name = "_POST", Level = 1 });
+            policy.Input.Add(new ChannelLabel() { Name = "_COOKIE", Level = 1 });
 
             //output channels
-            policy.OutputLabels.Add(new ChannelLabel() { Name = "mysql_query", Level = 2 });
+            policy.Output.Add(new ChannelLabel() { Name = "mysql_query", Level = 2 });
+
+            //sanitize channels
+            policy.Sanitize.Add(new ChannelLabel() { Name = "sanitize", Level = 1, TargetLevel = 2 });
 
             return policy;
         }
