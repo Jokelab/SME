@@ -21,6 +21,7 @@ namespace SME.Cli
             var transformer = factory.CreateTransformer();
             var transformations = transformer.Transform(content, policy);
 
+            //persist transformed code
             transformations.SaveTransformations(fullPath);
 
             //construct scheduler and schedule the code for execution
@@ -46,7 +47,7 @@ namespace SME.Cli
             policy.Output.Add(new ChannelLabel() { Name = "mysql_query", Level = 2 });
 
             //sanitize channels
-            policy.Sanitize.Add(new ChannelLabel() { Name = "sanitize", Level = 1, TargetLevel = 2 });
+            policy.Sanitize.Add(new ChannelLabel() { Name = "escape_input", Level = 1, TargetLevel = 2 });
 
             return policy;
         }

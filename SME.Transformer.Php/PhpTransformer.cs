@@ -48,7 +48,7 @@ namespace SME.Transformer.Php
                 rewriter.VisitElement(ast);
 
                 version.Code = composer.Code.ToString();
-                version.Level = level;
+                version.SecurityLevel = level;
                 result.CodeTransformations.Add(version);
             }
             var po = new CodeTransformation();
@@ -56,7 +56,8 @@ namespace SME.Transformer.Php
             var poRewriter = new PhpChannelRewriter(new TreeContext(ast), poComposer, provider, nodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, new SecurityLevel() { Level = 0, Name = "Original" });
             poRewriter.VisitElement(ast);
             po.Code = poComposer.Code.ToString();
-            po.Level = new SecurityLevel() { Level = 0, Name = "PO" };
+            po.IsOriginal = true;
+            po.SecurityLevel = new SecurityLevel() { Level = 0, Name = "PO" };
             result.CodeTransformations.Add(po);
 
             return result;

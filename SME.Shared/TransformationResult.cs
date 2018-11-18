@@ -27,7 +27,7 @@ namespace SME.Shared
             foreach (var version in CodeTransformations)
             {
                 string filename = Path.GetFileNameWithoutExtension(originalPath);
-                string outputPath = originalPath.Replace(filename, $"{filename}.{version.Level.Name}");
+                string outputPath = originalPath.Replace(filename, $"{filename}.{version.SecurityLevel.Name}");
 
                 //write code transformation to output
                 File.WriteAllText(outputPath, version.Code);

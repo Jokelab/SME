@@ -11,33 +11,39 @@ namespace SME.Scheduler.Php
     public class PhpScheduler : IScheduler
     {
         private PhpScriptEvaluator _evaluator;
+        private readonly MemoryStore _defaultMemoryStore = new MemoryStore();
+        private readonly MemoryStore _originalMemoryStore = new MemoryStore();
 
         public PhpScheduler()
         {
             _evaluator = new PhpScriptEvaluator();
         }
 
-        private void Run(CodeTransformation version, string[] args)
+        private void Run(CodeTransformation version, string[] args, MemoryStore memoryStore)
         {
             PhpArray get = new PhpArray();
             get["id"] = PhpValue.Create(args[0]);
             PhpArray post = new PhpArray();
             PhpArray cookies = new PhpArray();
             
-            _evaluator.Evaluate(version.Code, get, post, cookies); ;
+            _evaluator.Evaluate(version, get, post, cookies, memoryStore); ;
         }
 
         public virtual IEnumerable<CodeTransformation> SortTransformations(IEnumerable<CodeTransformation> codeTransformations)
         {
-            return codeTransformations.OrderByDescending(ct => ct.Level);
+            return codeTransformations.OrderByDescending(ct => ct.SecurityLevel.Level);
         }
 
         public void Schedule(IEnumerable<CodeTransformation> codeTransformations, string[] args)
         {
-            foreach (var version in codeTransformations)
+            
+            var sorted = SortTransformations(codeTransformations);
+            foreach (var version in sorted)
             {
-                Console.WriteLine("Now executing level " + version.Level.Name + ":");
-                Run(version, args);
+                Console.WriteLine("Now executing level " + version.SecurityLevel.Name + ":");
+
+                var memStore = version.IsOriginal ? _originalMemoryStore : _defaultMemoryStore;
+                Run(version, args, memStore);
                 Console.Write("\n\n");
             }
         }

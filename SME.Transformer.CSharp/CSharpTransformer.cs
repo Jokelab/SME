@@ -45,7 +45,7 @@ namespace SME.Transformer.CSharp
             var node = rewriter.Visit(tree.GetRoot());
 
 
-            result.CodeTransformations.Add( new CodeTransformation() { Level = new SecurityLevel() { Name = "PH", Level = 1 }, Code = result.ToString() });
+            result.CodeTransformations.Add( new CodeTransformation() { SecurityLevel = new SecurityLevel() { Name = "PH", Level = 1 }, Code = result.ToString() });
             
 
             return result ;

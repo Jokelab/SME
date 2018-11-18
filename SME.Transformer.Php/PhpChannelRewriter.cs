@@ -2,6 +2,7 @@
 using Devsense.PHP.Syntax.Ast;
 using Devsense.PHP.Text;
 using SME.Shared;
+using System;
 using System.Collections.Generic;
 
 namespace SME.Transformer.Php
@@ -32,18 +33,15 @@ namespace SME.Transformer.Php
             var inputChannel = FindChannel(node, _inputChannels);
             if (inputChannel != null)
             {
-                //only keep the input channel if it's security label >= current level
-                if (inputChannel.Label.Level >= _securityLevel.Level)
+                if (!_visitedChannels.Contains(inputChannel.Id))
                 {
-                    base.VisitItemUse(node);
+                    _visitedChannels.Add(inputChannel.Id);
+                    RewriteInputChannel(inputChannel, node);
                 }
                 else
                 {
-                    //insert a default value
-                    var emptyString = _factory.Literal(new Span(0, 2), "''", "''");
-                    base.VisitElement(emptyString);
+                    base.VisitItemUse(node);
                 }
-
             }
             else
             {
@@ -60,7 +58,7 @@ namespace SME.Transformer.Php
             if (outputChannel != null)
             {
                 RewriteOutputChannel(outputChannel, node);
-
+                _visitedChannels.Add(outputChannel.Id);
             }
             else if (sanitizeChannel != null)
             {
@@ -83,10 +81,40 @@ namespace SME.Transformer.Php
             }
         }
 
+        private void RewriteInputChannel(Channel inputChannel, ItemUse node)
+        {
+            //only keep the input channel if it's security label >= current level
+            if (inputChannel.Label.Level >= _securityLevel.Level)
+            {
+                //base.VisitItemUse(node);
+
+
+                //construct a new call to the capture_output function
+                var name = new TranslatedQualifiedName(new QualifiedName(new Name("store_input")), new Span());
+                var parameters = new List<ActualParam>();
+                parameters.Add(new ActualParam(new Span(), new LongIntLiteral(new Span(), inputChannel.Id)));
+                parameters.Add(new ActualParam(new Span(), node));
+
+                var signature = new CallSignature(parameters, new Span());
+                //let factory create a new DirectFcnCall AST node.
+                var storeInput = (DirectFcnCall)_factory.Call(new Span(), name, signature, node.IsMemberOf);
+
+                //visit the new call
+                base.VisitDirectFcnCall(storeInput);
+
+            }
+            else
+            {
+                //insert a default value
+                var emptyString = _factory.Literal(new Span(0, 2), "''", "''");
+                base.VisitElement(emptyString);
+            }
+        }
+
         private void RewriteOutputChannel(Channel outputChannel, DirectFcnCall node)
         {
             //construct a new call to the capture_output function
-            var name = new TranslatedQualifiedName(new QualifiedName(new Name("capture_output")), new Span());
+            var name = new TranslatedQualifiedName(new QualifiedName(new Name("store_output")), new Span());
             var parameters = new List<ActualParam>();
             parameters.Add(new ActualParam(new Span(), new LongIntLiteral(new Span(), outputChannel.Id)));
             if (node.CallSignature.Parameters.Length > 0)
@@ -96,10 +124,10 @@ namespace SME.Transformer.Php
 
             var signature = new CallSignature(parameters, new Span());
             //let factory create a new DirectFcnCall AST node.
-            var captureOutputCall = (DirectFcnCall)_factory.Call(new Span(), name, signature, node.IsMemberOf);
+            var storeOutputCall = (DirectFcnCall)_factory.Call(new Span(), name, signature, node.IsMemberOf);
 
             //visit the new call
-            base.VisitDirectFcnCall(captureOutputCall);
+            base.VisitDirectFcnCall(storeOutputCall);
 
             //an output channel is only allowed at the corresponding security level
             if (outputChannel.Label.Level == _securityLevel.Level)
@@ -115,11 +143,10 @@ namespace SME.Transformer.Php
         private void RewriteSanitizeChannel(Channel sanitizeChannel, DirectFcnCall node)
         {
             //construct a new call to the capture_output function
-            var name = new TranslatedQualifiedName(new QualifiedName(new Name("capture_sanitize")), new Span());
+            var name = new TranslatedQualifiedName(new QualifiedName(new Name("store_sanitize")), new Span());
             var parameters = new List<ActualParam>();
             parameters.Add(new ActualParam(new Span(), new LongIntLiteral(new Span(), sanitizeChannel.Id)));
             parameters.Add(new ActualParam(new Span(), node));
-
 
             var signature = new CallSignature(parameters, new Span());
             //let factory create a new DirectFcnCall AST node.
@@ -127,16 +154,6 @@ namespace SME.Transformer.Php
 
             //visit the new call
             base.VisitDirectFcnCall(captureSanitizeCall);
-
-            //an output channel is only allowed at the corresponding security level
-            //if (sanitizeChannel.Label.Level == _securityLevel.Level)
-            //{
-            //    //add a semicolon between the new call and the original call
-            //    base.VisitEmptyStmt((EmptyStmt)_factory.EmptyStmt(new Span(0, 1)));
-
-            //    //visit the original call
-            //    base.VisitDirectFcnCall(node);
-            //}
         }
 
         /// <summary>

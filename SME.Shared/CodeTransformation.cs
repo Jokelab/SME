@@ -11,11 +11,17 @@
         /// <summary>
         /// The security level that corresponds with the transformed node.
         /// </summary>
-        public SecurityLevel Level { get; set; }
+        public SecurityLevel SecurityLevel { get; set; }
+
+        /// <summary>
+        /// Indicates if it is the adjusted version of the original code (PO') or not.
+        /// </summary>
+        public bool IsOriginal { get; set; }
+
 
         public override string ToString()
         {
-            return  $"{Level.Name}:\n {Code}";
+            return  $"{SecurityLevel.Name}:\n {Code}";
         }
     }
 }
