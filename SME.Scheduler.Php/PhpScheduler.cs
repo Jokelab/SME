@@ -21,13 +21,14 @@ namespace SME.Scheduler.Php
 
         private void Run(CodeTransformation version, string[] args, MemoryStore memoryStore)
         {
-            PhpArray get = new PhpArray();
-            get["id"] = PhpValue.Create(args[0]);
-            PhpArray post = new PhpArray();
-            PhpArray cookies = new PhpArray();
-            
+            PhpArray get = PhpArgumentParser.Parse("get", args);
+            PhpArray post = PhpArgumentParser.Parse("post", args);
+            PhpArray cookies = PhpArgumentParser.Parse("cookies", args);
+
             _evaluator.Evaluate(version, get, post, cookies, memoryStore); ;
         }
+
+
 
         public virtual IEnumerable<CodeTransformation> SortTransformations(IEnumerable<CodeTransformation> codeTransformations)
         {
@@ -36,7 +37,7 @@ namespace SME.Scheduler.Php
 
         public void Schedule(IEnumerable<CodeTransformation> codeTransformations, string[] args)
         {
-            
+
             var sorted = SortTransformations(codeTransformations);
             foreach (var version in sorted)
             {
