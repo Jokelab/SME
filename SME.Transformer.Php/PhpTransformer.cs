@@ -2,6 +2,7 @@
 using Devsense.PHP.Syntax.Ast;
 using SME.Shared;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SME.Transformer.Php
 {
@@ -39,25 +40,46 @@ namespace SME.Transformer.Php
 
             var levels = collector.GetDistinctSecurityLevels();
 
+            //append a sanitize transformation if there are sanitize channels
+            if (result.SanitizeChannels.Any())
+            {
+                var lowestSanitizeLevel = result.SanitizeChannels.Min(sc => sc.Label.Level);
+                var pSanitize = new CodeTransformation();
+                pSanitize.Kind = TransformationKind.Sanitize;
+                pSanitize.SecurityLevel = new SecurityLevel() { Level = lowestSanitizeLevel, Name = "PSanitize" };
+                var composer = new PhpTokenComposer(provider);
+                var rewriter = new PhpChannelRewriter(new TreeContext(ast), composer, provider, nodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, pSanitize.SecurityLevel, pSanitize.Kind);
+                rewriter.VisitElement(ast);
+                pSanitize.Code = composer.Code.ToString();
+                
+                result.CodeTransformations.Add(pSanitize);
+            }
+
             //create code version for each security level
             foreach (var level in levels)
             {
                 var version = new CodeTransformation();
-                var composer = new PhpTokenComposer(provider);
-                var rewriter = new PhpChannelRewriter(new TreeContext(ast), composer, provider, nodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, level);
-                rewriter.VisitElement(ast);
-
-                version.Code = composer.Code.ToString();
+                version.Kind = TransformationKind.Default;
                 version.SecurityLevel = level;
+                var composer = new PhpTokenComposer(provider);
+                var rewriter = new PhpChannelRewriter(new TreeContext(ast), composer, provider, nodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, level, version.Kind);
+                rewriter.VisitElement(ast);
+                version.Code = composer.Code.ToString();
+                
+                
                 result.CodeTransformations.Add(version);
             }
+
+            //create PO version
             var po = new CodeTransformation();
+            po.Kind = TransformationKind.Original;
             var poComposer = new PhpTokenComposer(provider);
-            var poRewriter = new PhpChannelRewriter(new TreeContext(ast), poComposer, provider, nodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, new SecurityLevel() { Level = 0, Name = "Original" });
+            po.SecurityLevel = new SecurityLevel() { Level = 0, Name = "PO" };
+            var poRewriter = new PhpChannelRewriter(new TreeContext(ast), poComposer, provider, nodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, po.SecurityLevel, po.Kind);
             poRewriter.VisitElement(ast);
             po.Code = poComposer.Code.ToString();
-            po.IsOriginal = true;
-            po.SecurityLevel = new SecurityLevel() { Level = 0, Name = "PO" };
+            
+            
             result.CodeTransformations.Add(po);
 
             return result;

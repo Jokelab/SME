@@ -15,9 +15,10 @@ namespace SME.Transformer.Php
         private readonly List<Channel> _inputChannels;
         private readonly List<Channel> _sanitizeChannels;
         private readonly SecurityLevel _securityLevel;
+        private readonly TransformationKind _transformationKind;
 
         private List<int> _visitedChannels = new List<int>();
-        public PhpChannelRewriter(TreeContext treeContext, ITokenComposer tokenComposer, ISourceTokenProvider sourceTokenProvider, BasicNodesFactory fac, IPolicy policy, List<Channel> inputChannels, List<Channel> outputChannels, List<Channel> sanitizeChannels, SecurityLevel level)
+        public PhpChannelRewriter(TreeContext treeContext, ITokenComposer tokenComposer, ISourceTokenProvider sourceTokenProvider, BasicNodesFactory fac, IPolicy policy, List<Channel> inputChannels, List<Channel> outputChannels, List<Channel> sanitizeChannels, SecurityLevel level, TransformationKind transformationKind)
             : base(treeContext, tokenComposer, sourceTokenProvider)
         {
             _factory = fac;
@@ -26,6 +27,7 @@ namespace SME.Transformer.Php
             _outputChannels = outputChannels;
             _sanitizeChannels = sanitizeChannels;
             _securityLevel = level;
+            _transformationKind = transformationKind;
         }
 
         public override void VisitItemUse(ItemUse node)
@@ -113,6 +115,12 @@ namespace SME.Transformer.Php
 
         private void RewriteOutputChannel(Channel outputChannel, DirectFcnCall node)
         {
+            if (_transformationKind == TransformationKind.Sanitize)
+            {
+                //sanitize transformations may not output at all.
+                return;
+            }
+
             //construct a new call to the capture_output function
             var name = new TranslatedQualifiedName(new QualifiedName(new Name("store_output")), new Span());
             var parameters = new List<ActualParam>();

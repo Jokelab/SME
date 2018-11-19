@@ -97,6 +97,11 @@ namespace SME.Transformer.Php
             return _policy.Output.FirstOrDefault(channel => channel.Name.Equals(functionName));
         }
 
+        /// <summary>
+        /// Check if the AST node is a sanitize channel according to the active policy.
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
         private ChannelLabel FindSanitizeLabel(DirectFcnCall node)
         {
             var functionName = node.FullName.Name.QualifiedName.Name.Value;

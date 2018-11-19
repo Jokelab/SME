@@ -1,6 +1,7 @@
 ﻿using SME.Factory;
 using SME.Shared;
 using System.IO;
+using System.Linq;
 
 namespace SME.Cli
 {
@@ -9,9 +10,7 @@ namespace SME.Cli
         static void Main(string[] args)
         {
             var policy = CreatePolicy();
-
-            var currentPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            var fullPath = Path.Combine(currentPath, "Sample.php");
+            var fullPath = GetInputFile(args);
             var content = File.ReadAllText(fullPath);
 
             //create factory based on the file extension
@@ -29,6 +28,27 @@ namespace SME.Cli
             scheduler.Schedule(transformations.CodeTransformations, args);
 
             System.Console.ReadKey();
+        }
+
+        /// <summary>
+        /// Determine the source file to read the contents from
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        private static string GetInputFile(string[] args)
+        {
+            var currentPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            var fullPath = Path.Combine(currentPath, "Sample.php");
+            if (args.Length > 0)
+            {
+                var prefix = "-input:";
+                var inputArg = args.FirstOrDefault(arg => arg.StartsWith(prefix));
+                if (!string.IsNullOrEmpty(inputArg))
+                {
+                    fullPath = inputArg.Substring(prefix.Length);
+                }
+            }
+            return fullPath;
         }
 
         public static IPolicy CreatePolicy()

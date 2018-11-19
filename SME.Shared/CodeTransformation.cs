@@ -14,9 +14,9 @@
         public SecurityLevel SecurityLevel { get; set; }
 
         /// <summary>
-        /// Indicates if it is the adjusted version of the original code (PO') or not.
+        /// Indicates if it is a default SME transformation, an annotated original program, or a sanitize version.
         /// </summary>
-        public bool IsOriginal { get; set; }
+        public TransformationKind Kind { get; set; }
 
 
         public override string ToString()

@@ -24,15 +24,13 @@ namespace SME.Scheduler.Php
             PhpArray get = PhpArgumentParser.Parse("get", args);
             PhpArray post = PhpArgumentParser.Parse("post", args);
             PhpArray cookies = PhpArgumentParser.Parse("cookies", args);
-
-            _evaluator.Evaluate(version, get, post, cookies, memoryStore); ;
+            _evaluator.Evaluate(version, get, post, cookies, memoryStore);
         }
-
-
 
         public virtual IEnumerable<CodeTransformation> SortTransformations(IEnumerable<CodeTransformation> codeTransformations)
         {
-            return codeTransformations.OrderByDescending(ct => ct.SecurityLevel.Level);
+            //assume they are added in the correct order, so there is no need to sort
+            return codeTransformations;
         }
 
         public void Schedule(IEnumerable<CodeTransformation> codeTransformations, string[] args)
@@ -41,9 +39,9 @@ namespace SME.Scheduler.Php
             var sorted = SortTransformations(codeTransformations);
             foreach (var version in sorted)
             {
-                Console.WriteLine("Now executing level " + version.SecurityLevel.Name + ":");
+                Console.WriteLine($"Executing level {version.SecurityLevel.Name}:");
 
-                var memStore = version.IsOriginal ? _originalMemoryStore : _defaultMemoryStore;
+                var memStore = version.Kind == TransformationKind.Original ? _originalMemoryStore : _defaultMemoryStore;
                 Run(version, args, memStore);
                 Console.Write("\n\n");
             }
