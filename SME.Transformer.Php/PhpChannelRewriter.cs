@@ -2,7 +2,7 @@
 using Devsense.PHP.Syntax.Ast;
 using Devsense.PHP.Text;
 using SME.Shared;
-using System;
+using SME.Shared.Constants;
 using System.Collections.Generic;
 
 namespace SME.Transformer.Php
@@ -92,7 +92,7 @@ namespace SME.Transformer.Php
 
 
                 //construct a new call to the capture_output function
-                var name = new TranslatedQualifiedName(new QualifiedName(new Name("store_input")), new Span());
+                var name = new TranslatedQualifiedName(new QualifiedName(new Name(FunctionNames.StoreInput)), new Span());
                 var parameters = new List<ActualParam>();
                 parameters.Add(new ActualParam(new Span(), new LongIntLiteral(new Span(), inputChannel.Id)));
                 parameters.Add(new ActualParam(new Span(), node));
@@ -122,7 +122,7 @@ namespace SME.Transformer.Php
             }
 
             //construct a new call to the capture_output function
-            var name = new TranslatedQualifiedName(new QualifiedName(new Name("store_output")), new Span());
+            var name = new TranslatedQualifiedName(new QualifiedName(new Name(FunctionNames.StoreOutput)), new Span());
             var parameters = new List<ActualParam>();
             parameters.Add(new ActualParam(new Span(), new LongIntLiteral(new Span(), outputChannel.Id)));
             if (node.CallSignature.Parameters.Length > 0)
@@ -151,7 +151,7 @@ namespace SME.Transformer.Php
         private void RewriteSanitizeChannel(Channel sanitizeChannel, DirectFcnCall node)
         {
             //construct a new call to the capture_output function
-            var name = new TranslatedQualifiedName(new QualifiedName(new Name("store_sanitize")), new Span());
+            var name = new TranslatedQualifiedName(new QualifiedName(new Name(FunctionNames.StoreSanitize)), new Span());
             var parameters = new List<ActualParam>();
             parameters.Add(new ActualParam(new Span(), new LongIntLiteral(new Span(), sanitizeChannel.Id)));
             parameters.Add(new ActualParam(new Span(), node));

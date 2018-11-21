@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.IO;
 using System;
 using SME.Shared;
+using SME.Shared.Constants;
 
 namespace SME.Scheduler.Php
 {
@@ -22,11 +23,11 @@ namespace SME.Scheduler.Php
             using (var ctx = Context.CreateConsole(string.Empty, new string[] { }))
             {
                 //declare methods to captures channel values
-                ctx.DeclareFunction("store_input", new Func<int, string, object>((id, val) => { ctx.Echo($"Stored input value for channel {id}: {val}\n"); memoryStore.Store(id, val); return val; }));
-                ctx.DeclareFunction("read_input", new Func<int, string, object>((id, val) => { ctx.Echo($"Read input value for channel {id}: {val}\n"); return val; }));
-                ctx.DeclareFunction("store_output", new Action<int, string>((id, val) => { ctx.Echo($"Stored output value for channel {id}: {val}\n"); memoryStore.Store(id, val); }));
-                ctx.DeclareFunction("store_sanitize", new Func<int, string, object>((id, val) => { ctx.Echo($"Stored sanitized value for channel {id}: {val}\n"); return val; }));
-                ctx.DeclareFunction("read_sanitize", new Func<int, string, object>((id, val) => { ctx.Echo($"Read sanitized value for channel {id}: {val}\n"); memoryStore.Store(id, val); return val; }));
+                ctx.DeclareFunction(FunctionNames.StoreInput, new Func<int, string, object>((id, val) => { ctx.Echo($"Stored input value for channel {id}: {val}\n"); memoryStore.Store(id, val); return val; }));
+                ctx.DeclareFunction(FunctionNames.ReadInput, new Func<int, string, object>((id, val) => { ctx.Echo($"Read input value for channel {id}: {val}\n"); return val; }));
+                ctx.DeclareFunction(FunctionNames.StoreOutput, new Action<int, string>((id, val) => { ctx.Echo($"Stored output value for channel {id}: {val}\n"); memoryStore.Store(id, val); }));
+                ctx.DeclareFunction(FunctionNames.StoreSanitize, new Func<int, string, object>((id, val) => { ctx.Echo($"Stored sanitized value for channel {id}: {val}\n"); return val; }));
+                ctx.DeclareFunction(FunctionNames.ReadSanitize, new Func<int, string, object>((id, val) => { ctx.Echo($"Read sanitized value for channel {id}: {val}\n"); memoryStore.Store(id, val); return val; }));
 
                 ctx.Get = getVariables;
                 ctx.Post = postVariables;
