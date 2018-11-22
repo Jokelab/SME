@@ -10,10 +10,10 @@ namespace SME.Scheduler.Php
     public class PhpScriptEvaluator
     {
         private Context.IScriptingProvider _provider = Context.GlobalServices.GetService<Context.IScriptingProvider>();
-        
+
         public PhpScriptEvaluator()
         {
-         
+
         }
 
         public void Evaluate(CodeTransformation codeTransformation, PhpArray getVariables, PhpArray postVariables, PhpArray cookieVariables, MemoryStore memoryStore)
@@ -22,12 +22,12 @@ namespace SME.Scheduler.Php
             //Context.CreateConsole() is a Peachpie runtime object, representing a PHP runtime thread. 
             using (var ctx = Context.CreateConsole(string.Empty, new string[] { }))
             {
-                //declare methods to captures channel values
+                //declare methods to store/read channel values
                 ctx.DeclareFunction(FunctionNames.StoreInput, new Func<int, string, object>((id, val) => { ctx.Echo($"Stored input value for channel {id}: {val}\n"); memoryStore.Store(id, val); return val; }));
-                ctx.DeclareFunction(FunctionNames.ReadInput, new Func<int, string, object>((id, val) => { ctx.Echo($"Read input value for channel {id}: {val}\n"); return val; }));
+                ctx.DeclareFunction(FunctionNames.ReadInput, new Func<int, string, object>((id, val) => { var readValue = memoryStore.Read(id, codeTransformation.SecurityLevel.Level); ctx.Echo($"Read input value for channel {id}: {readValue}\n"); return readValue; }));
+                ctx.DeclareFunction(FunctionNames.StoreSanitize, new Func<int, string, object>((id, val) => { ctx.Echo($"Stored sanitized value for channel {id}: {val}\n"); memoryStore.Store(id, val); return val; }));
+                ctx.DeclareFunction(FunctionNames.ReadSanitize, new Func<int, string, object>((id, val) => { var readValue = memoryStore.Read(id, codeTransformation.SecurityLevel.Level); ctx.Echo($"Read sanitized value for channel {id}: {readValue}\n"); return readValue; }));
                 ctx.DeclareFunction(FunctionNames.StoreOutput, new Action<int, string>((id, val) => { ctx.Echo($"Stored output value for channel {id}: {val}\n"); memoryStore.Store(id, val); }));
-                ctx.DeclareFunction(FunctionNames.StoreSanitize, new Func<int, string, object>((id, val) => { ctx.Echo($"Stored sanitized value for channel {id}: {val}\n"); return val; }));
-                ctx.DeclareFunction(FunctionNames.ReadSanitize, new Func<int, string, object>((id, val) => { ctx.Echo($"Read sanitized value for channel {id}: {val}\n"); memoryStore.Store(id, val); return val; }));
 
                 ctx.Get = getVariables;
                 ctx.Post = postVariables;

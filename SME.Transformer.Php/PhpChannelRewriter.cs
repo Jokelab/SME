@@ -17,10 +17,10 @@ namespace SME.Transformer.Php
         private readonly List<Channel> _sanitizeChannels;
         private readonly SecurityLevel _securityLevel;
         private readonly int _minInputLevel;
-        private readonly bool _captureAllOutput;
+        private readonly bool _isOriginalProgram;
 
         private List<int> _visitedChannels = new List<int>();
-        public PhpChannelRewriter(TreeContext treeContext, ITokenComposer tokenComposer, ISourceTokenProvider sourceTokenProvider, BasicNodesFactory fac, IPolicy policy, List<Channel> inputChannels, List<Channel> outputChannels, List<Channel> sanitizeChannels, SecurityLevel level, bool captureAllOutput = false)
+        public PhpChannelRewriter(TreeContext treeContext, ITokenComposer tokenComposer, ISourceTokenProvider sourceTokenProvider, BasicNodesFactory fac, IPolicy policy, List<Channel> inputChannels, List<Channel> outputChannels, List<Channel> sanitizeChannels, SecurityLevel level, bool isOriginalProgram = false)
             : base(treeContext, tokenComposer, sourceTokenProvider)
         {
             _factory = fac;
@@ -30,7 +30,7 @@ namespace SME.Transformer.Php
             _outputChannels = outputChannels;
             _sanitizeChannels = sanitizeChannels;
             _securityLevel = level;
-            _captureAllOutput = captureAllOutput;
+            _isOriginalProgram = isOriginalProgram;
         }
 
         public override void VisitItemUse(ItemUse node)
@@ -97,7 +97,7 @@ namespace SME.Transformer.Php
                 bool isSanitizeTransformation = _securityLevel.Level < _minInputLevel; //it is the sanitize transformation
                 bool sanitizeChannelsAvailable = _sanitizeChannels.Any();
 
-                bool doInput = isSanitizeTransformation || (inputChannel.Label.Level == _securityLevel.Level && !sanitizeChannelsAvailable);
+                bool doInput = _isOriginalProgram || isSanitizeTransformation || (inputChannel.Label.Level == _securityLevel.Level && !sanitizeChannelsAvailable);
                 var function = doInput ? FunctionNames.StoreInput : FunctionNames.ReadInput;
 
 
@@ -125,8 +125,8 @@ namespace SME.Transformer.Php
 
         private void RewriteOutputChannel(Channel outputChannel, DirectFcnCall node)
         {
-            //bool that indicates if all output values should be kept. The original program (PO') is likely to use this.
-            if (_captureAllOutput)
+            //the original program (PO') captures all output values
+            if (_isOriginalProgram || outputChannel.Label.Level == _securityLevel.Level)
             {
                 //construct a new call to the capture output function
                 var name = new TranslatedQualifiedName(new QualifiedName(new Name(FunctionNames.StoreOutput)), new Span());
@@ -160,14 +160,14 @@ namespace SME.Transformer.Php
         {
             //Store condition: From(sc) >= l
             var storeSanitizedValue = sanitizeChannel.Label.Level >= _securityLevel.Level;
-            
+
             //Read sanitized value condition: To(sc) >= l ^ l >= min(C)
-            var readSanitizedValue  = sanitizeChannel.Label.TargetLevel >= _securityLevel.Level && _securityLevel.Level >= _minInputLevel;
+            var readSanitizedValue = sanitizeChannel.Label.TargetLevel >= _securityLevel.Level && _securityLevel.Level >= _minInputLevel;
 
             if (storeSanitizedValue || readSanitizedValue)
             {
                 //determine if it should read or store a sanitized value
-                var function = readSanitizedValue ? FunctionNames.ReadSanitize : FunctionNames.StoreSanitize;
+                var function = readSanitizedValue && !_isOriginalProgram ? FunctionNames.ReadSanitize : FunctionNames.StoreSanitize;
 
                 //construct a new call
                 var name = new TranslatedQualifiedName(new QualifiedName(new Name(function)), new Span());

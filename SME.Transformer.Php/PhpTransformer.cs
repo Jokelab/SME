@@ -75,7 +75,7 @@ namespace SME.Transformer.Php
             po.Kind = TransformationKind.Original;
             var poComposer = new PhpTokenComposer(provider);
             po.SecurityLevel = new SecurityLevel() { Level = lowestInputLevel, Name = "PO'" };
-            var poRewriter = new PhpChannelRewriter(new TreeContext(ast), poComposer, provider, nodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, po.SecurityLevel, captureAllOutput: true);
+            var poRewriter = new PhpChannelRewriter(new TreeContext(ast), poComposer, provider, nodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, po.SecurityLevel, isOriginalProgram: true);
             poRewriter.VisitElement(ast);
             po.Code = poComposer.Code.ToString();
             result.CodeTransformations.Add(po);
