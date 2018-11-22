@@ -7,12 +7,12 @@ using System.Linq;
 namespace SME.Transformer.Php
 {
 
-    public class PhpTransformer: ITransformer
+    public class PhpTransformer : ITransformer
     {
         private const string filename = "file.php";
         public PhpTransformer()
         {
-          
+
         }
 
         public TransformationResult Transform(string content, IPolicy policy)
@@ -38,20 +38,20 @@ namespace SME.Transformer.Php
             result.OutputChannels.AddRange(collector.OutputChannels);
             result.SanitizeChannels.AddRange(collector.SanitizeChannels);
 
-            var levels = collector.GetDistinctSecurityLevels();
+            var levels = collector.GetDistinctSecurityLevels().OrderByDescending(sl => sl.Level);
 
             //append a sanitize transformation if there are sanitize channels
+            var lowestInputLevel = result.InputChannels.Min(sc => sc.Label.Level);
             if (result.SanitizeChannels.Any())
             {
-                var lowestSanitizeLevel = result.SanitizeChannels.Min(sc => sc.Label.Level);
                 var pSanitize = new CodeTransformation();
                 pSanitize.Kind = TransformationKind.Sanitize;
-                pSanitize.SecurityLevel = new SecurityLevel() { Level = lowestSanitizeLevel, Name = "PSanitize" };
+                pSanitize.SecurityLevel = new SecurityLevel() { Level = lowestInputLevel - 1, Name = "PS" };
                 var composer = new PhpTokenComposer(provider);
-                var rewriter = new PhpChannelRewriter(new TreeContext(ast), composer, provider, nodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, pSanitize.SecurityLevel, pSanitize.Kind);
+                var rewriter = new PhpChannelRewriter(new TreeContext(ast), composer, provider, nodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, pSanitize.SecurityLevel);
                 rewriter.VisitElement(ast);
                 pSanitize.Code = composer.Code.ToString();
-                
+
                 result.CodeTransformations.Add(pSanitize);
             }
 
@@ -62,11 +62,11 @@ namespace SME.Transformer.Php
                 version.Kind = TransformationKind.Default;
                 version.SecurityLevel = level;
                 var composer = new PhpTokenComposer(provider);
-                var rewriter = new PhpChannelRewriter(new TreeContext(ast), composer, provider, nodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, level, version.Kind);
+                var rewriter = new PhpChannelRewriter(new TreeContext(ast), composer, provider, nodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, level);
                 rewriter.VisitElement(ast);
                 version.Code = composer.Code.ToString();
-                
-                
+
+
                 result.CodeTransformations.Add(version);
             }
 
@@ -74,19 +74,17 @@ namespace SME.Transformer.Php
             var po = new CodeTransformation();
             po.Kind = TransformationKind.Original;
             var poComposer = new PhpTokenComposer(provider);
-            po.SecurityLevel = new SecurityLevel() { Level = 0, Name = "PO" };
-            var poRewriter = new PhpChannelRewriter(new TreeContext(ast), poComposer, provider, nodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, po.SecurityLevel, po.Kind);
+            po.SecurityLevel = new SecurityLevel() { Level = lowestInputLevel, Name = "PO'" };
+            var poRewriter = new PhpChannelRewriter(new TreeContext(ast), poComposer, provider, nodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, po.SecurityLevel, captureAllOutput: true);
             poRewriter.VisitElement(ast);
             po.Code = poComposer.Code.ToString();
-            
-            
             result.CodeTransformations.Add(po);
 
             return result;
-     
+
         }
 
-        
+
     }
 
 }

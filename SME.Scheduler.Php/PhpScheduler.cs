@@ -39,7 +39,7 @@ namespace SME.Scheduler.Php
             var sorted = SortTransformations(codeTransformations);
             foreach (var version in sorted)
             {
-                Console.WriteLine($"Executing level {version.SecurityLevel.Name}:");
+                Console.WriteLine($"Executing level {version.SecurityLevel.Name} ({version.SecurityLevel.Level}):");
 
                 var memStore = version.Kind == TransformationKind.Original ? _originalMemoryStore : _defaultMemoryStore;
                 Run(version, args, memStore);
