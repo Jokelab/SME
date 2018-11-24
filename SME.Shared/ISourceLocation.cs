@@ -6,5 +6,7 @@ namespace SME.Shared
 {
     public interface ISourceLocation
     {
+        string GetText(string code);
+        string GetLocation();
     }
 }

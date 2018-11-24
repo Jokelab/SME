@@ -11,7 +11,7 @@ namespace SME.Scheduler.Php
     public class PhpScheduler : IScheduler
     {
         private PhpScriptEvaluator _evaluator;
-        private readonly MemoryStore _defaultMemoryStore = new MemoryStore();
+        private readonly MemoryStore _smeMemoryStore = new MemoryStore();
         private readonly MemoryStore _originalMemoryStore = new MemoryStore();
 
         public PhpScheduler()
@@ -41,10 +41,15 @@ namespace SME.Scheduler.Php
             {
                 Console.WriteLine($"Executing level {version.SecurityLevel.Name} ({version.SecurityLevel.Level}):");
 
-                var memStore = version.Kind == TransformationKind.Original ? _originalMemoryStore : _defaultMemoryStore;
+                var memStore = version.Kind == TransformationKind.Original ? _originalMemoryStore : _smeMemoryStore;
                 Run(version, args, memStore);
                 Console.Write("\n\n");
             }
+        }
+
+        public Verdict GetVerdict(List<Channel> outputChannels)
+        {
+            return OutputComparer.Compare(outputChannels, _smeMemoryStore, _originalMemoryStore);
         }
     }
 }

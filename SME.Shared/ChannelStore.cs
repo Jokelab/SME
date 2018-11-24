@@ -6,7 +6,6 @@ namespace SME.Shared
 
     public class ChannelStore
     {
-        public int ChannelId { get; set; }
 
         private List<string> _channelValues = new List<string>();
 
@@ -21,7 +20,16 @@ namespace SME.Shared
             {
                 return _channelValues[index];
             }
-            throw new ArgumentException($"Index {index} does not exist in store for channel {ChannelId}");
+            throw new ArgumentException($"Index {index} does not exist in channel store.");
+        }
+
+        /// <summary>
+        /// Get all values in the store
+        /// </summary>
+        /// <returns></returns>
+        public List<string> GetValues()
+        {
+            return _channelValues;
         }
 
     }

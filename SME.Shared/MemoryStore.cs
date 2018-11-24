@@ -45,5 +45,19 @@ namespace SME.Shared
             }
             return _stores[id].Read(_readCount[key]);
         }
+
+        /// <summary>
+        /// Retrieve a channel store without incrementing the read count
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ChannelStore GetChannel(int id)
+        {
+            if (_stores.ContainsKey(id))
+            {
+                return _stores[id];
+            }
+            return null;
+        }
     }
 }

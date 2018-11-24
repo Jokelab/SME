@@ -27,6 +27,10 @@ namespace SME.Cli
             var scheduler = factory.CreateScheduler();
             scheduler.Schedule(transformations.CodeTransformations, args);
 
+            //determine verdict after execution
+            var verdict = scheduler.GetVerdict(transformations.OutputChannels);
+            ShowVerdict(verdict, policy, content);
+
             System.Console.ReadKey();
         }
 
@@ -68,8 +72,36 @@ namespace SME.Cli
 
             //sanitize channels
             policy.Sanitize.Add(new ChannelLabel() { Name = "escape_input", Level = 1, TargetLevel = 2 });
+            policy.Sanitize.Add(new ChannelLabel() { Name = "mysql_real_escape_string", Level = 1, TargetLevel = 2 });
 
             return policy;
+        }
+
+        /// <summary>
+        /// Show verdict about the input code
+        /// </summary>
+        /// <param name="verdict"></param>
+        private static void ShowVerdict(Verdict verdict, IPolicy policy, string document)
+        {
+            System.Console.WriteLine("===== VERDICT =====");
+            if (verdict.InterferentChannels.Any())
+            {
+                System.Console.WriteLine($"Observed {verdict.InterferentChannels.Count} channel(s) with different output values between the SME exection and the original execution.\nThe code is thus interferent.");
+                foreach(var chan in verdict.InterferentChannels)
+                {
+                    var levelName = policy.Levels.Where(l => l.Level == chan.Label.Level).Select(l => l.Name).FirstOrDefault();
+                    System.Console.Write($"\n=> Channel ID {chan.Id} (level {levelName})\n");
+                    var code = chan.Location.GetText(document);
+                    System.Console.Write($"Code: {code}");
+                    System.Console.Write($"\nPosition in original code: {chan.Location.GetLocation()}\n");
+                    System.Console.Write($"Captured differences:\n{verdict.Messages[chan.Id]}");
+                }
+                
+            }
+            else
+            {
+                System.Console.WriteLine("No interferent channels detected for the provided input values!");
+            }
         }
     }
 }
