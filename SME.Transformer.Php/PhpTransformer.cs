@@ -38,6 +38,12 @@ namespace SME.Transformer.Php
             result.OutputChannels.AddRange(collector.OutputChannels);
             result.SanitizeChannels.AddRange(collector.SanitizeChannels);
 
+            //if there are no output or input channels found in the code, it makes no sense to transform it
+            if (result.OutputChannels.Count == 0 || result.InputChannels.Count == 0)
+            {
+                return result;
+            }
+
             var levels = collector.GetDistinctSecurityLevels().OrderByDescending(sl => sl.Level);
 
             //append a sanitize transformation if there are sanitize channels

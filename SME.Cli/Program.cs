@@ -19,6 +19,7 @@ namespace SME.Cli
             //construct transformer and apply transformations
             var transformer = factory.CreateTransformer();
             var transformations = transformer.Transform(content, policy);
+            if (!TransformationsOk(transformations)) return;
 
             //persist transformed code
             transformations.SaveTransformations(fullPath);
@@ -61,19 +62,41 @@ namespace SME.Cli
             return fullPath;
         }
 
-        public static IPolicy GetPolicy(string[] args)
+        private static IPolicy GetPolicy(string[] args)
         {
             var policyPath = GetFileArgument(args, "-policy:", "policy.xml");
             if (File.Exists(policyPath))
             {
                 return PolicyReader.ReadXml<Policy>(policyPath);
             }
-            //if path doesn't exist, create a policy object in code
-            return CreatePolicy();
+            //if path doesn't exist, create a default policy object in code
+            return CreateDefaultPolicy();
         }
-      
 
-        public static IPolicy CreatePolicy()
+        private static bool TransformationsOk(TransformationResult transformations)
+        {
+            if (transformations.InputChannels.Count == 0)
+            {
+                System.Console.WriteLine("No input channels found that match the active policy.");
+                return false;
+            }
+
+            if (transformations.OutputChannels.Count == 0)
+            {
+                System.Console.WriteLine("No output channels found that match the active policy.");
+                return false;
+            }
+
+            if (transformations.CodeTransformations.Count == 0)
+            {
+                System.Console.WriteLine("No code transformations available.");
+                return false;
+            }
+            return true;
+        }
+
+
+        private static IPolicy CreateDefaultPolicy()
         {
             var policy = new Policy();
 
@@ -89,7 +112,6 @@ namespace SME.Cli
             policy.Output.Add(new ChannelLabel() { Name = "mysql_query", Level = 2 });
 
             //sanitize channels
-            policy.Sanitize.Add(new ChannelLabel() { Name = "escape_input", Level = 1, TargetLevel = 2 });
             policy.Sanitize.Add(new ChannelLabel() { Name = "mysql_real_escape_string", Level = 1, TargetLevel = 2 });
 
             return policy;
@@ -105,7 +127,7 @@ namespace SME.Cli
             if (verdict.InterferentChannels.Any())
             {
                 System.Console.WriteLine($"Observed {verdict.InterferentChannels.Count} channel(s) with different output values between the SME exection and the original execution.\nThe code is thus interferent.");
-                foreach(var chan in verdict.InterferentChannels)
+                foreach (var chan in verdict.InterferentChannels)
                 {
                     var levelName = policy.Levels.Where(l => l.Level == chan.Label.Level).Select(l => l.Name).FirstOrDefault();
                     System.Console.Write($"\n=> Channel ID {chan.Id} (level {levelName})\n");
@@ -114,7 +136,7 @@ namespace SME.Cli
                     System.Console.Write($"\nPosition in original code: {chan.Location.GetLocation()}\n");
                     System.Console.Write($"Captured differences:\n{verdict.Messages[chan.Id]}");
                 }
-                
+
             }
             else
             {
