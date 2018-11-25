@@ -9,9 +9,9 @@ namespace SME.Cli
     {
         static void Main(string[] args)
         {
-            var policy = CreatePolicy();
-            var fullPath = GetInputFile(args);
+            var fullPath = GetFileArgument(args, "-input:", "Sample.php");
             var content = File.ReadAllText(fullPath);
+            var policy = GetPolicy(args);
 
             //create factory based on the file extension
             var factory = FactoryProducer.GetFactory(Path.GetExtension(fullPath));
@@ -35,25 +35,43 @@ namespace SME.Cli
         }
 
         /// <summary>
-        /// Determine the source file to read the contents from
+        /// Get path argument from program arguments.
+        /// If an absolute path is provided for the argument, then this will be returned. 
+        /// Else the relative path is assumed to point to the current directory.
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        private static string GetInputFile(string[] args)
+        private static string GetFileArgument(string[] args, string prefix, string defaultFile)
         {
             var currentPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            var fullPath = Path.Combine(currentPath, "Sample.php");
+            var fullPath = Path.Combine(currentPath, defaultFile);
             if (args.Length > 0)
             {
-                var prefix = "-input:";
                 var inputArg = args.FirstOrDefault(arg => arg.StartsWith(prefix));
                 if (!string.IsNullOrEmpty(inputArg))
                 {
                     fullPath = inputArg.Substring(prefix.Length);
+                    if (!Path.IsPathRooted(fullPath))
+                    {
+                        //relative path provided, so append it to the current directory
+                        fullPath = Path.Combine(currentPath, fullPath);
+                    }
                 }
             }
             return fullPath;
         }
+
+        public static IPolicy GetPolicy(string[] args)
+        {
+            var policyPath = GetFileArgument(args, "-policy:", "policy.xml");
+            if (File.Exists(policyPath))
+            {
+                return PolicyReader.ReadXml<Policy>(policyPath);
+            }
+            //if path doesn't exist, create a policy object in code
+            return CreatePolicy();
+        }
+      
 
         public static IPolicy CreatePolicy()
         {
