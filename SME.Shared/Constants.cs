@@ -11,5 +11,7 @@ namespace SME.Shared.Constants
         public const string ReadSanitize = "read_sanitize";
         public const string StoreSanitize = "store_sanitize";
         public const string StoreOutput = "store_output";
+        public const string ReadOutput = "read_output";
+        public const string CaptureOutput = "capture_output";
     }
 }

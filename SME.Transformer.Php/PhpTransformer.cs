@@ -50,12 +50,22 @@ namespace SME.Transformer.Php
             var lowestInputLevel = result.InputChannels.Min(sc => sc.Label.Level);
             if (result.SanitizeChannels.Any())
             {
+                var sanSourceUnit = new CodeSourceUnit(content, filename, System.Text.Encoding.UTF8, Lexer.LexicalStates.INITIAL, LanguageFeatures.Php71Set);
+                var sanNodesFactory = new BasicNodesFactory(sourceUnit);
+                var sanErrors = new PhpErrorSink();
+                sanSourceUnit.Parse(sanNodesFactory, sanErrors);
+                GlobalCode sanAst = sanSourceUnit.Ast;
+                if (sanErrors.Count != 0)
+                {
+                    return result; // AST is null or invalid
+                }
+
                 var pSanitize = new CodeTransformation();
                 pSanitize.Kind = TransformationKind.Sanitize;
                 pSanitize.SecurityLevel = new SecurityLevel() { Level = lowestInputLevel - 1, Name = "PS" };
                 var composer = new PhpTokenComposer(provider);
-                var rewriter = new PhpChannelRewriter(new TreeContext(ast), composer, provider, nodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, pSanitize.SecurityLevel);
-                rewriter.VisitElement(ast);
+                var rewriter = new PhpChannelRewriter(new TreeContext(sanAst), composer, provider, nodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, pSanitize.SecurityLevel);
+                rewriter.VisitElement(sanAst);
                 pSanitize.Code = composer.Code.ToString();
 
                 result.CodeTransformations.Add(pSanitize);
@@ -64,12 +74,23 @@ namespace SME.Transformer.Php
             //create code version for each security level
             foreach (var level in levels)
             {
+                var levelSourceUnit = new CodeSourceUnit(content, filename, System.Text.Encoding.UTF8, Lexer.LexicalStates.INITIAL, LanguageFeatures.Php71Set);
+                var levelNodesFactory = new BasicNodesFactory(levelSourceUnit);
+                var levelerrors = new PhpErrorSink();
+                levelSourceUnit.Parse(nodesFactory, levelerrors);
+                GlobalCode levelAst = levelSourceUnit.Ast;
+                if (levelerrors.Count != 0)
+                {
+                    return result; // AST is null or invalid
+                }
+
+
                 var version = new CodeTransformation();
                 version.Kind = TransformationKind.Default;
                 version.SecurityLevel = level;
                 var composer = new PhpTokenComposer(provider);
-                var rewriter = new PhpChannelRewriter(new TreeContext(ast), composer, provider, nodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, level);
-                rewriter.VisitElement(ast);
+                var rewriter = new PhpChannelRewriter(new TreeContext(levelAst), composer, provider, levelNodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, level);
+                rewriter.VisitElement(levelAst);
                 version.Code = composer.Code.ToString();
 
 
@@ -77,18 +98,39 @@ namespace SME.Transformer.Php
             }
 
             //create PO version
+            var poSourceUnit = new CodeSourceUnit(content, filename, System.Text.Encoding.UTF8, Lexer.LexicalStates.INITIAL, LanguageFeatures.Php71Set);
+            var poNodesFactory = new BasicNodesFactory(poSourceUnit);
+            var poErrors = new PhpErrorSink();
+            poSourceUnit.Parse(poNodesFactory, poErrors);
+            GlobalCode poAst = poSourceUnit.Ast;
+
             var po = new CodeTransformation();
             po.Kind = TransformationKind.Original;
             var poComposer = new PhpTokenComposer(provider);
             po.SecurityLevel = new SecurityLevel() { Level = lowestInputLevel, Name = "PO'" };
-            var poRewriter = new PhpChannelRewriter(new TreeContext(ast), poComposer, provider, nodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, po.SecurityLevel, isOriginalProgram: true);
-            poRewriter.VisitElement(ast);
+            var poRewriter = new PhpChannelRewriter(new TreeContext(poAst), poComposer, provider, poNodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, po.SecurityLevel, isOriginalProgram: true);
+            poRewriter.VisitElement(poAst);
             po.Code = poComposer.Code.ToString();
             result.CodeTransformations.Add(po);
 
             return result;
 
         }
+
+        //private GlobalCode CreateAst(string content)
+        //{
+        //    var sourceUnit = new CodeSourceUnit(content, filename, System.Text.Encoding.UTF8, Lexer.LexicalStates.INITIAL, LanguageFeatures.Php71Set);
+        //    var levelSourceUnit = new CodeSourceUnit(content, filename, System.Text.Encoding.UTF8, Lexer.LexicalStates.INITIAL, LanguageFeatures.Php71Set);
+        //    var nodesFactory = new BasicNodesFactory(sourceUnit);
+        //    var errors = new PhpErrorSink();
+        //    sourceUnit.Parse(nodesFactory, errors);
+            
+        //    if (errors.Count != 0)
+        //    {
+        //        throw new System.Exception("Problem while creating AST from code. ");
+        //    }
+        //    return sourceUnit.Ast;
+        //}
 
 
     }

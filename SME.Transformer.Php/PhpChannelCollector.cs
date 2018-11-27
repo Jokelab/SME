@@ -45,7 +45,7 @@ namespace SME.Transformer.Php
         /// <param name="node"></param>
         public override void VisitDirectFcnCall(DirectFcnCall node)
         {
-            
+
             var outputLabel = FindOutputLabel(node);
             if (outputLabel != null)
             {
@@ -75,9 +75,9 @@ namespace SME.Transformer.Php
         private ChannelLabel FindInputLabel(ItemUse node)
         {
             var varUse = node.Array as DirectVarUse;
-            var arrayKey = node.Index as StringLiteral;
+            //var arrayKey = node.Index as StringLiteral;
 
-            if (varUse != null && arrayKey != null)
+            if (varUse != null)
             {
                 return _policy.Input.FirstOrDefault(channel => channel.Name.Equals(varUse.VarName.Value));
             }
@@ -131,7 +131,7 @@ namespace SME.Transformer.Php
 
         }
 
-        
+
 
     }
 }

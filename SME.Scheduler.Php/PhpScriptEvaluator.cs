@@ -27,7 +27,10 @@ namespace SME.Scheduler.Php
                 ctx.DeclareFunction(FunctionNames.ReadInput, new Func<int, string, object>((id, val) => { var readValue = memoryStore.Read(id, codeTransformation.SecurityLevel.Level); ctx.Echo($"Read input value for channel {id}: {readValue}\n"); return readValue; }));
                 ctx.DeclareFunction(FunctionNames.StoreSanitize, new Func<int, string, object>((id, val) => { ctx.Echo($"Stored sanitized value for channel {id}: {val}\n"); memoryStore.Store(id, val); return val; }));
                 ctx.DeclareFunction(FunctionNames.ReadSanitize, new Func<int, string, object>((id, val) => { var readValue = memoryStore.Read(id, codeTransformation.SecurityLevel.Level); ctx.Echo($"Read sanitized value for channel {id}: {readValue}\n"); return readValue; }));
+
+                ctx.DeclareFunction(FunctionNames.CaptureOutput, new Action<int, string>((id, val) => { ctx.Echo($"Captured output value for channel {id}: {val}\n"); }));
                 ctx.DeclareFunction(FunctionNames.StoreOutput, new Action<int, string>((id, val) => { ctx.Echo($"Stored output value for channel {id}: {val}\n"); memoryStore.Store(id, val); }));
+                ctx.DeclareFunction(FunctionNames.ReadOutput, new Func<int, string>((id) => { var readValue = memoryStore.Read(id, codeTransformation.SecurityLevel.Level); ctx.Echo($"Read output value for channel {id}: {readValue}\n"); return readValue; }));
 
                 ctx.Get = getVariables;
                 ctx.Post = postVariables;

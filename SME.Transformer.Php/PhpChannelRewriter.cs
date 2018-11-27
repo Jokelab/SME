@@ -126,10 +126,11 @@ namespace SME.Transformer.Php
         private void RewriteOutputChannel(Channel outputChannel, DirectFcnCall node)
         {
             //the original program (PO') captures all output values
-            if (_isOriginalProgram || outputChannel.Label.Level == _securityLevel.Level)
+            if (_isOriginalProgram || outputChannel.Label.Level == _securityLevel.Level || _securityLevel.Level < _minInputLevel)
             {
+                var functionName = _securityLevel.Level < _minInputLevel ? FunctionNames.CaptureOutput : FunctionNames.StoreOutput;
                 //construct a new call to the capture output function
-                var name = new TranslatedQualifiedName(new QualifiedName(new Name(FunctionNames.StoreOutput)), new Span());
+                var name = new TranslatedQualifiedName(new QualifiedName(new Name(functionName)), new Span());
                 var parameters = new List<ActualParam>();
                 parameters.Add(new ActualParam(new Span(), new LongIntLiteral(new Span(), outputChannel.Id)));
                 if (node.CallSignature.Parameters.Length > 0)
@@ -146,13 +147,32 @@ namespace SME.Transformer.Php
             }
 
             //performing an output to an output channel is only allowed if the current execution has the same security level
-            if (outputChannel.Label.Level == _securityLevel.Level)
+            if (_isOriginalProgram || outputChannel.Label.Level == _securityLevel.Level)
             {
                 //add a semicolon between the new call and the original call
                 base.VisitEmptyStmt((EmptyStmt)_factory.EmptyStmt(new Span(0, 1)));
 
-                //visit the original call
-                base.VisitDirectFcnCall(node);
+
+                if (!_isOriginalProgram)
+                {
+                    //construct a new call to the capture output function
+                    var name = new TranslatedQualifiedName(new QualifiedName(new Name(FunctionNames.ReadOutput)), new Span());
+                    var parameters = new List<ActualParam>
+                    {
+                        new ActualParam(new Span(), new LongIntLiteral(new Span(), outputChannel.Id))
+                    };
+
+                    var signature = new CallSignature(parameters, new Span());
+                    //let factory create a new DirectFcnCall AST node.
+                    var readOutputCall = (DirectFcnCall)_factory.Call(new Span(), name, signature, node.IsMemberOf);
+
+                    //replace parameter with a read_output call
+                    node.CallSignature.Parameters[0] = new ActualParam(new Span(), readOutputCall);
+
+
+                    //visit the original call
+                    base.VisitDirectFcnCall(node);
+                }
             }
         }
 
