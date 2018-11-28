@@ -2,6 +2,7 @@
 using SME.Shared;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace SME.Transformer.Php
@@ -34,9 +35,10 @@ namespace SME.Transformer.Php
             return code;
         }
 
-        public string GetLocation()
+        public string GetLocation(string document)
         {
-            return $"{Location.Start}..{Location.End}";
+            var lineNumber = document.Take(Location.Start).Count(c => c == '\n') + 1;
+            return $"{Location.Start}..{Location.End} (Line {lineNumber})";
         }
     }
 }

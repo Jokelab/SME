@@ -133,7 +133,7 @@ namespace SME.Cli
                     System.Console.Write($"\n=> Channel ID {chan.Id} (level {levelName})\n");
                     var code = chan.Location.GetText(document);
                     System.Console.Write($"Code: {code}");
-                    System.Console.Write($"\nPosition in original code: {chan.Location.GetLocation()}\n");
+                    System.Console.Write($"\nPosition in original code:  {chan.Location.GetLocation(document)}\n");
                     System.Console.Write($"Captured differences:\n{verdict.Messages[chan.Id]}");
                 }
 
