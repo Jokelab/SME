@@ -1,7 +1,9 @@
-﻿using SME.Factory;
-using SME.Shared;
+﻿using System;
 using System.IO;
 using System.Linq;
+using SME.Factory;
+using SME.Shared;
+
 
 namespace SME.Cli
 {
@@ -9,6 +11,7 @@ namespace SME.Cli
     {
         static void Main(string[] args)
         {
+
             var fullPath = GetFileArgument(args, "-input:", "Sample.php");
             var content = File.ReadAllText(fullPath);
             var policy = GetPolicy(args);
@@ -18,21 +21,24 @@ namespace SME.Cli
 
             //construct transformer and apply transformations
             var transformer = factory.CreateTransformer();
+            Console.WriteLine($"Starting transformation of {fullPath}");
             var transformations = transformer.Transform(content, policy);
             if (!TransformationsOk(transformations)) return;
+            Console.WriteLine($"Transformation completed. Generated {transformations.CodeTransformations.Count} code versions.");
 
             //persist transformed code
             transformations.SaveTransformations(fullPath);
 
             //construct scheduler and schedule the code for execution
+            Console.WriteLine($"Starting scheduler.");
             var scheduler = factory.CreateScheduler();
             scheduler.Schedule(transformations.CodeTransformations, args);
+            Console.WriteLine($"Scheduler completed.");
 
             //determine verdict after execution
             var verdict = scheduler.GetVerdict(transformations.OutputChannels);
             ShowVerdict(verdict, policy, content);
 
-            System.Console.ReadKey();
         }
 
         /// <summary>
@@ -75,21 +81,31 @@ namespace SME.Cli
 
         private static bool TransformationsOk(TransformationResult transformations)
         {
+            if (transformations.Errors.Count > 0)
+            {
+                Console.WriteLine("Errors in transformation: ");
+                foreach(var error in transformations.Errors)
+                {
+                    Console.WriteLine(error);
+                }
+                return false;
+            }
+
             if (transformations.InputChannels.Count == 0)
             {
-                System.Console.WriteLine("No input channels found that match the active policy.");
+                Console.WriteLine("No input channels found that match the active policy.");
                 return false;
             }
 
             if (transformations.OutputChannels.Count == 0)
             {
-                System.Console.WriteLine("No output channels found that match the active policy.");
+                Console.WriteLine("No output channels found that match the active policy.");
                 return false;
             }
 
             if (transformations.CodeTransformations.Count == 0)
             {
-                System.Console.WriteLine("No code transformations available.");
+                Console.WriteLine("No code transformations available.");
                 return false;
             }
             return true;
@@ -123,24 +139,24 @@ namespace SME.Cli
         /// <param name="verdict"></param>
         private static void ShowVerdict(Verdict verdict, IPolicy policy, string document)
         {
-            System.Console.WriteLine("===== VERDICT =====");
+            Console.WriteLine("===== VERDICT =====");
             if (verdict.InterferentChannels.Any())
             {
-                System.Console.WriteLine($"Observed {verdict.InterferentChannels.Count} channel(s) with different output values between the SME exection and the original execution.\nThe code is thus interferent.");
+                Console.WriteLine($"Observed {verdict.InterferentChannels.Count} channel(s) with different output values between the SME exection and the original execution.\nThe code is thus interferent.");
                 foreach (var chan in verdict.InterferentChannels)
                 {
                     var levelName = policy.Levels.Where(l => l.Level == chan.Label.Level).Select(l => l.Name).FirstOrDefault();
-                    System.Console.Write($"\n=> Channel ID {chan.Id} (level {levelName})\n");
+                    Console.Write($"\n=> Channel ID {chan.Id} (level {levelName})\n");
                     var code = chan.Location.GetText(document);
-                    System.Console.Write($"Code: {code}");
-                    System.Console.Write($"\nPosition in original code:  {chan.Location.GetLocation(document)}\n");
-                    System.Console.Write($"Captured differences:\n{verdict.Messages[chan.Id]}");
+                    Console.Write($"Code: {code}");
+                    Console.Write($"\nPosition in original code:  {chan.Location.GetLocation(document)}\n");
+                    Console.Write($"Captured differences:\n{verdict.Messages[chan.Id]}");
                 }
 
             }
             else
             {
-                System.Console.WriteLine("No interferent channels detected for the provided input values!");
+                Console.WriteLine("No interferent channels detected for the provided input values!");
             }
         }
     }

@@ -26,6 +26,7 @@ namespace SME.Transformer.Php
             GlobalCode ast = sourceUnit.Ast;
             if (errors.Count != 0)
             {
+                ReportErrors(errors, result, content);
                 return result; // AST is null or invalid
             }
 
@@ -115,6 +116,20 @@ namespace SME.Transformer.Php
 
             return result;
 
+        }
+
+        /// <summary>
+        /// Copy errorsink values to error collection in output
+        /// </summary>
+        /// <param name="errorSink"></param>
+        /// <param name="result"></param>
+        private void ReportErrors(PhpErrorSink errorSink, TransformationResult result, string code)
+        {
+            foreach(var error in errorSink.Errors)
+            {
+                var sourceLocation = new PhpSourceLocation(error.Span);
+                result.Errors.Add(error.ToString() + " Location: "+ sourceLocation.GetLocation(code));
+            }
         }
 
         //private GlobalCode CreateAst(string content)

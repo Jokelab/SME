@@ -9,6 +9,7 @@ namespace SME.Shared
         public List<Channel> InputChannels { get; private set; }
         public List<Channel> OutputChannels { get; private set; }
         public List<Channel> SanitizeChannels { get; private set; }
+        public List<string> Errors { get; private set; }
 
         public TransformationResult()
         {
@@ -16,6 +17,7 @@ namespace SME.Shared
             InputChannels = new List<Channel>();
             OutputChannels = new List<Channel>();
             SanitizeChannels = new List<Channel>();
+            Errors = new List<string>();
         }
 
         /// <summary>
