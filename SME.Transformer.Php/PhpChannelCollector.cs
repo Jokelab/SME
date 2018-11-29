@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Devsense.PHP.Syntax;
 using Devsense.PHP.Syntax.Ast;
+using Devsense.PHP.Syntax.Visitor;
 using SME.Shared;
 
 namespace SME.Transformer.Php
@@ -39,6 +40,32 @@ namespace SME.Transformer.Php
             base.VisitItemUse(node);
         }
 
+        public override void VisitExpressionStmt(ExpressionStmt x)
+        {
+            base.VisitExpressionStmt(x);
+        
+        }
+        
+ 
+        public override void VisitEchoStmt(EchoStmt node)
+        {
+            //nodes that contain only html code cannot output (server) information
+            if (!node.IsHtmlCode)
+            {
+                var functionName = "echo";
+                var outputLabel = _policy.Output.FirstOrDefault(channel => channel.Name.Equals(functionName));
+                if (outputLabel != null)
+                {
+                    var channel = new Channel() { Id = _uniqueId, Label = outputLabel, Location = new PhpSourceLocation(node.Span) };
+                    OutputChannels.Add(channel);
+                    _uniqueId++;
+                }
+            }
+
+            base.VisitEchoStmt(node);
+        }
+        
+
         /// <summary>
         /// Visits direct function calls. These elements can be output channels.
         /// </summary>
@@ -61,8 +88,6 @@ namespace SME.Transformer.Php
                 SanitizeChannels.Add(channel);
                 _uniqueId++;
             }
-
-
 
             base.VisitDirectFcnCall(node);
         }

@@ -1,5 +1,6 @@
 ﻿using Devsense.PHP.Syntax;
 using Devsense.PHP.Syntax.Ast;
+using Devsense.PHP.Syntax.Visitor;
 using Devsense.PHP.Text;
 using SME.Shared;
 using SME.Shared.Constants;
@@ -55,6 +56,22 @@ namespace SME.Transformer.Php
                 base.VisitItemUse(node);
             }
 
+        }
+
+        public override void VisitEchoStmt(EchoStmt node)
+        {
+
+            var outputChannel = FindChannel(node, _outputChannels);
+            if (outputChannel != null)
+            {
+                RewriteEchoStmt(outputChannel, node);
+                _visitedChannels.Add(outputChannel.Id);
+            }
+            else
+            {
+                //no special treatment
+                base.VisitEchoStmt(node);
+            }
         }
 
         public override void VisitDirectFcnCall(DirectFcnCall node)
@@ -155,7 +172,7 @@ namespace SME.Transformer.Php
 
                 if (!_isOriginalProgram)
                 {
-                    //construct a new call to the capture output function
+                    //construct a new call to the read output function
                     var name = new TranslatedQualifiedName(new QualifiedName(new Name(FunctionNames.ReadOutput)), new Span());
                     var parameters = new List<ActualParam>
                     {
@@ -172,6 +189,65 @@ namespace SME.Transformer.Php
 
                     //visit the original call
                     base.VisitDirectFcnCall(node);
+                }
+            }
+        }
+
+
+        private void RewriteEchoStmt(Channel outputChannel, EchoStmt node)
+        {
+            //the original program (PO') captures all output values
+            if (_isOriginalProgram || outputChannel.Label.Level == _securityLevel.Level || _securityLevel.Level < _minInputLevel)
+            {
+                var functionName = _securityLevel.Level < _minInputLevel ? FunctionNames.CaptureOutput : FunctionNames.StoreOutput;
+                //construct a new call to the capture output function
+                var name = new TranslatedQualifiedName(new QualifiedName(new Name(functionName)), new Span());
+                var parameters = new List<ActualParam>();
+                parameters.Add(new ActualParam(new Span(), new LongIntLiteral(new Span(), outputChannel.Id)));
+                if (node.Parameters.Length > 0)
+                {
+                    parameters.Add(new ActualParam(new Span(), node.Parameters[0]));
+                }
+
+                var signature = new CallSignature(parameters, new Span());
+                //let factory create a new DirectFcnCall AST node.
+                var storeOutputCall = (DirectFcnCall)_factory.Call(new Span(), name, signature, null);
+
+                //visit the new call
+                base.VisitDirectFcnCall(storeOutputCall);
+            }
+
+            //add a semicolon between the new call and the original call
+            base.VisitEmptyStmt((EmptyStmt)_factory.EmptyStmt(new Span(0, 1)));
+
+            //performing an output to an output channel is only allowed if the current execution has the same security level
+            if (_isOriginalProgram || outputChannel.Label.Level == _securityLevel.Level)
+            {
+           
+
+
+                if (!_isOriginalProgram)
+                {
+                    //construct a new call to the read output function
+                    //var name = new TranslatedQualifiedName(new QualifiedName(new Name(FunctionNames.ReadOutput)), new Span());
+                    //var parameters = new List<ActualParam>
+                    //{
+                    //    new ActualParam(new Span(), new LongIntLiteral(new Span(), outputChannel.Id))
+                    //};
+
+                    //var signature = new CallSignature(parameters, new Span());
+                    ////let factory create a new DirectFcnCall AST node.
+                    //var readOutputCall = (DirectFcnCall)_factory.Call(new Span(), name, signature, node);
+
+                    ////replace parameter with a read_output call
+                    //if (node.Parameters.Length > 0)
+                    //{
+                    //    node.Parameters[0] = readOutputCall;
+                    //}
+                    
+
+                    //visit the original call
+                    base.VisitEchoStmt(node);
                 }
             }
         }

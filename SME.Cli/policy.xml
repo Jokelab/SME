@@ -22,12 +22,16 @@
       <Name>mysql_query</Name>
       <Level>2</Level>
     </ChannelLabel>
+  <ChannelLabel>
+      <Name>echo</Name>
+      <Level>2</Level>
+    </ChannelLabel>
   </Output>
   
   <!--Sanitize channels-->  
   <Sanitize>
     <ChannelLabel>
-      <Name>escape_input</Name>
+      <Name>htmlspecialchars</Name>
       <Level>1</Level>
       <TargetLevel>2</TargetLevel>
     </ChannelLabel>

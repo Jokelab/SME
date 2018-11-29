@@ -1,7 +1,7 @@
 ﻿using Devsense.PHP.Syntax;
 using Devsense.PHP.Syntax.Ast;
+using Devsense.PHP.Syntax.Visitor;
 using SME.Shared;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace SME.Transformer.Php
