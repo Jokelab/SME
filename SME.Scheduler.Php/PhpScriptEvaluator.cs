@@ -20,7 +20,8 @@ namespace SME.Scheduler.Php
         {
 
             var fullpath = Path.Combine(Directory.GetCurrentDirectory(), "main.php");
-
+            
+            
             //Context.CreateConsole() is a Peachpie runtime object, representing a PHP runtime thread. 
             using (var ctx = Context.CreateConsole(string.Empty, new string[] { }))
             {
@@ -38,6 +39,8 @@ namespace SME.Scheduler.Php
                 ctx.Post = postVariables;
                 ctx.Cookie = cookieVariables;
 
+                
+
                 var script = _provider.CreateScript(new Context.ScriptOptions()
                 {
                     Context = ctx,
@@ -53,6 +56,7 @@ namespace SME.Scheduler.Php
 
                 //evaluate the php code
                 script.Evaluate(ctx, ctx.Globals, null);
+                
             }
         }
     }

@@ -118,7 +118,7 @@ namespace SME.Transformer.Php
                 var function = doInput ? FunctionNames.StoreInput : FunctionNames.ReadInput;
 
 
-                //construct a new call to the capture_output function
+                //construct a new call to the store/read input function
                 var name = new TranslatedQualifiedName(new QualifiedName(new Name(function)), new Span());
                 var parameters = new List<ActualParam>();
                 parameters.Add(new ActualParam(new Span(), new LongIntLiteral(new Span(), inputChannel.Id)));

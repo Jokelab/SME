@@ -11,23 +11,32 @@ namespace SME.Cli
     {
         static void Main(string[] args)
         {
+            //read input file content
+            var inputFilePath = GetFileArgument(args, "-input:", "Sample.php");
+            var content = GetInput(inputFilePath);
+            if (string.IsNullOrEmpty(content)) return; //exit if there is no input
 
-            var fullPath = GetFileArgument(args, "-input:", "Sample.php");
-            var content = File.ReadAllText(fullPath);
-            var policy = GetPolicy(args);
+            //read policy
+            var policyPath = GetFileArgument(args, "-policy:", "policy.xml");
+            var policy = GetPolicy(policyPath);
+            if (policy == null) return; //exit if there is no policy
 
             //create factory based on the file extension
-            var factory = FactoryProducer.GetFactory(Path.GetExtension(fullPath));
+            var factory = FactoryProducer.GetFactory(Path.GetExtension(inputFilePath));
 
             //construct transformer and apply transformations
             var transformer = factory.CreateTransformer();
-            Console.WriteLine($"Starting transformation of {fullPath}");
+            Console.WriteLine($"Starting transformation of {inputFilePath}");
             var transformations = transformer.Transform(content, policy);
-            if (!TransformationsOk(transformations)) return;
+            if (!ValidateTransformations(transformations)) return;
             Console.WriteLine($"Transformation completed. Generated {transformations.CodeTransformations.Count} code versions.");
 
             //persist transformed code
-            transformations.SaveTransformations(fullPath);
+            if (HasArgument(args, "-save"))
+            {
+                transformations.SaveTransformations(inputFilePath);
+                Console.WriteLine($"Saved the transformed code versions to {Path.GetDirectoryName(inputFilePath)}");
+            }
 
             //construct scheduler and schedule the code for execution
             Console.WriteLine($"Starting scheduler.");
@@ -54,7 +63,7 @@ namespace SME.Cli
             var fullPath = Path.Combine(currentPath, defaultFile);
             if (args.Length > 0)
             {
-                var inputArg = args.FirstOrDefault(arg => arg.StartsWith(prefix));
+                var inputArg = args.FirstOrDefault(arg => arg.ToLowerInvariant().StartsWith(prefix));
                 if (!string.IsNullOrEmpty(inputArg))
                 {
                     fullPath = inputArg.Substring(prefix.Length);
@@ -68,23 +77,66 @@ namespace SME.Cli
             return fullPath;
         }
 
-        private static IPolicy GetPolicy(string[] args)
+        /// <summary>
+        /// Determine if the specified argument exists ni the list of arguments
+        /// </summary>
+        /// <param name="args"></param>
+        /// <param name="argument"></param>
+        /// <returns></returns>
+        private static bool HasArgument(string[] args, string argument)
         {
-            var policyPath = GetFileArgument(args, "-policy:", "policy.xml");
+            return args.Any(arg => arg.ToLowerInvariant().StartsWith(argument));
+        }
+
+        /// <summary>
+        /// Get input code from the specified path
+        /// </summary>
+        /// <param name="fullPath"></param>
+        /// <returns></returns>
+        private static string GetInput(string fullPath)
+        {
+            var content = string.Empty;
+            if (File.Exists(fullPath))
+            {
+                return File.ReadAllText(fullPath);
+            }
+            else
+            {
+                Console.WriteLine($"Input file {fullPath} does not exist.");
+            }
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Read a policy file from the specified path
+        /// </summary>
+        /// <param name="policyPath"></param>
+        /// <returns></returns>
+        private static IPolicy GetPolicy(string policyPath)
+        {
+            
             if (File.Exists(policyPath))
             {
                 return PolicyReader.ReadXml<Policy>(policyPath);
             }
-            //if path doesn't exist, create a default policy object in code
-            return CreateDefaultPolicy();
+            else
+            {
+                Console.WriteLine($"Policy file {policyPath} does not exist.");
+            }
+            return null;
         }
 
-        private static bool TransformationsOk(TransformationResult transformations)
+        /// <summary>
+        /// Perform some checks to determine if the transformation is valid
+        /// </summary>
+        /// <param name="transformations"></param>
+        /// <returns></returns>
+        private static bool ValidateTransformations(TransformationResult transformations)
         {
             if (transformations.Errors.Count > 0)
             {
-                Console.WriteLine("Errors in transformation: ");
-                foreach(var error in transformations.Errors)
+                Console.WriteLine("Error(s) in transformation: ");
+                foreach (var error in transformations.Errors)
                 {
                     Console.WriteLine(error);
                 }
@@ -111,28 +163,6 @@ namespace SME.Cli
             return true;
         }
 
-
-        private static IPolicy CreateDefaultPolicy()
-        {
-            var policy = new Policy();
-
-            policy.Levels.Add(new SecurityLevel() { Name = "L", Level = 1 });
-            policy.Levels.Add(new SecurityLevel() { Name = "H", Level = 2 });
-
-            //input channels
-            policy.Input.Add(new ChannelLabel() { Name = "_GET", Level = 1 });
-            policy.Input.Add(new ChannelLabel() { Name = "_POST", Level = 1 });
-            policy.Input.Add(new ChannelLabel() { Name = "_COOKIE", Level = 1 });
-
-            //output channels
-            policy.Output.Add(new ChannelLabel() { Name = "mysql_query", Level = 2 });
-
-            //sanitize channels
-            policy.Sanitize.Add(new ChannelLabel() { Name = "mysql_real_escape_string", Level = 1, TargetLevel = 2 });
-
-            return policy;
-        }
-
         /// <summary>
         /// Show verdict about the input code
         /// </summary>
@@ -140,8 +170,9 @@ namespace SME.Cli
         private static void ShowVerdict(Verdict verdict, IPolicy policy, string document)
         {
             Console.WriteLine("===== VERDICT =====");
-            if (verdict.InterferentChannels.Any())
+            if (verdict.InterferenceDetected())
             {
+                //code is interferent
                 Console.WriteLine($"Observed {verdict.InterferentChannels.Count} channel(s) with different output values between the SME exection and the original execution.\nThe code is thus interferent.");
                 foreach (var chan in verdict.InterferentChannels)
                 {
@@ -156,7 +187,8 @@ namespace SME.Cli
             }
             else
             {
-                Console.WriteLine("No interferent channels detected for the provided input values!");
+                //code shows non-interference for the provided input values
+                Console.WriteLine("No interferent channels detected for the provided input values.");
             }
         }
     }

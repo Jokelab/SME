@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Devsense.PHP.Syntax;
 using Devsense.PHP.Syntax.Ast;
@@ -39,14 +38,12 @@ namespace SME.Transformer.Php
             }
             base.VisitItemUse(node);
         }
-
-        public override void VisitExpressionStmt(ExpressionStmt x)
-        {
-            base.VisitExpressionStmt(x);
-        
-        }
-        
  
+        /// <summary>
+        /// Visits elements like <?php echo "Hello! " . $name ?>
+        /// Echo statements that do not consist entirely of html can be output channels.
+        /// </summary>
+        /// <param name="node"></param>
         public override void VisitEchoStmt(EchoStmt node)
         {
             //nodes that contain only html code cannot output (server) information

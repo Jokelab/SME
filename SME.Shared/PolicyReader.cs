@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Xml.Serialization;
 
 namespace SME.Shared
@@ -15,10 +16,17 @@ namespace SME.Shared
         public static T ReadXml<T>(string path) where T : IPolicy
         {
             T policyObject = default(T);
-            if (string.IsNullOrEmpty(path)) return default(T);
-            StreamReader xmlStream = new StreamReader(path);
-            XmlSerializer serializer = new XmlSerializer(typeof(T));
-            policyObject = (T)serializer.Deserialize(xmlStream);
+            try
+            {
+                if (string.IsNullOrEmpty(path)) return default(T);
+                StreamReader xmlStream = new StreamReader(path);
+                XmlSerializer serializer = new XmlSerializer(typeof(T));
+                policyObject = (T)serializer.Deserialize(xmlStream);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.Write($"Could not read policy file: {ex}.");
+            }
             return policyObject;
         }
 
