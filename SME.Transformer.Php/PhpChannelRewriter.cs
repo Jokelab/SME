@@ -223,31 +223,23 @@ namespace SME.Transformer.Php
             //performing an output to an output channel is only allowed if the current execution has the same security level
             if (_isOriginalProgram || outputChannel.Label.Level == _securityLevel.Level)
             {
-           
-
 
                 if (!_isOriginalProgram)
                 {
                     //construct a new call to the read output function
-                    //var name = new TranslatedQualifiedName(new QualifiedName(new Name(FunctionNames.ReadOutput)), new Span());
-                    //var parameters = new List<ActualParam>
-                    //{
-                    //    new ActualParam(new Span(), new LongIntLiteral(new Span(), outputChannel.Id))
-                    //};
+                    var name = new TranslatedQualifiedName(new QualifiedName(new Name(FunctionNames.ReadOutput)), new Span());
+                    var parameters = new List<ActualParam>
+                    {
+                        new ActualParam(new Span(), new LongIntLiteral(new Span(), outputChannel.Id))
+                    };
 
-                    //var signature = new CallSignature(parameters, new Span());
-                    ////let factory create a new DirectFcnCall AST node.
-                    //var readOutputCall = (DirectFcnCall)_factory.Call(new Span(), name, signature, node);
-
-                    ////replace parameter with a read_output call
-                    //if (node.Parameters.Length > 0)
-                    //{
-                    //    node.Parameters[0] = readOutputCall;
-                    //}
-                    
+                    var signature = new CallSignature(parameters, new Span());
+                    //let factory create a new Echo AST node and let it echo the read_output call
+                    var readOutputCall = (DirectFcnCall)_factory.Call(new Span(), name, signature, null);
+                    var echo = (EchoStmt)_factory.Echo(new Span(), new List<LangElement> { readOutputCall });
 
                     //visit the original call
-                    base.VisitEchoStmt(node);
+                    base.VisitEchoStmt(echo);
                 }
             }
         }
