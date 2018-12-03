@@ -16,7 +16,7 @@ The [.NET Core SDK](https://dotnet.microsoft.com/download/dotnet-core/2.1) is re
 The primary input for this tool is a program. The tool is designed to be language independent, but currently the only supported input language is PHP 7.1. To integrate the PHP environment with .NET, the tool makes use of the [PeachPie compiler](https://github.com/peachpiecompiler/peachpie). In order to extend the tool for different programming languages, language specific classes for the the transformer and scheduler interfaces should be implemented.
 
 ## Basic usage
-The following example shows how this tool can help to reveil and patch injection vulnerabilities.
+The following example shows how this tool can help to reveal and patch injection vulnerabilities.
 - Create a file named **xss.php** with the following contents:
 ```php
 <html>
@@ -37,33 +37,34 @@ $msg = 'welcome ' . $name;
 According to the default [policy file](https://github.com/Jokelab/SME/blob/master/SME.Cli/policy.xml), the code contains one input channel ($GET_['name']) and two output channels (the echo statements). This code obviously suffers from injection vulnerabilities, because it will echo the input value without any restriction. Our goal is to detect the interferent channels in order to patch them.
 - Open a command shell.
 - Navigate to the SME.Cli directory.
-- Execute the following command (with the exact location of xss.php)
+- Execute the following command (with the correct path to xss.php)
 ```sh
-dotnet run -input:samples\xss.php -get:name=Johnny  
+dotnet run -input:yourdirectory\xss.php -get:name=Robert  
 ```
-The tool should report about the interferent channels which are the result of injection vulnerabilities:
+The tool should report the exact location of the interferent channels:
 ```
-Observed 2 channel(s) with different output values between the SME exection and the original execution. The code is thus interferent.
+Observed 2 channel(s) with different output values between the SME exection and the original execution. 
+The code is thus interferent.
 
 => Channel ID 1 (level H)
 Code: echo($name);
 Position in original code:  92..104 (Line 7)
 Captured differences:
-#1 Original     : Johnny
+#1 Original     : Robert
 #1 SME          :
 
 => Channel ID 2 (level H)
 Code: echo "Hello, " . $msg;
 Position in original code:  155..177 (Line 11)
 Captured differences:
-#1 Original     : Hello, welcome Johnny
+#1 Original     : Hello, welcome Robert
 #1 SME          : Hello, welcome
 ```
 Now patch the code, for example by wrapping the input and/or output channels with the [htmlspecialchars](http://php.net/manual/en/function.htmlspecialchars.php) function:
 ```php
 htmlspecialchars(echo($name));
 ```
-Run the tool again. It should now report no vulnerabile output channels for the provided input values.
+Run the tool again. It should now report no vulnerable output channels for the provided input values.
 
 #### Parameters
 
