@@ -12,7 +12,7 @@ namespace SME.Cli
         static void Main(string[] args)
         {
             //read input file content
-            var inputFilePath = GetFileArgument(args, "-input:", "Sample.php");
+            var inputFilePath = GetFileArgument(args, "-input:", @"samples\sqli.php");
             var content = GetInput(inputFilePath);
             if (string.IsNullOrEmpty(content)) return; //exit if there is no input
 
@@ -59,7 +59,7 @@ namespace SME.Cli
         /// <returns></returns>
         private static string GetFileArgument(string[] args, string prefix, string defaultFile)
         {
-            var currentPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            var currentPath = Directory.GetCurrentDirectory();// Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             var fullPath = Path.Combine(currentPath, defaultFile);
             if (args.Length > 0)
             {

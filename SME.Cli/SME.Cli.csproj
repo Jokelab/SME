@@ -7,22 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Sample.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Sample.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\SME.Factory\SME.Factory.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="policy.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Sample.php">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

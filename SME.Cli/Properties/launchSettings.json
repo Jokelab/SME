@@ -1,8 +1,7 @@
 {
   "profiles": {
     "SME.Cli": {
-      "commandName": "Project",
-      "commandLineArgs": "-policy:policy.xml -get:id=6&name=Robert"
+      "commandName": "Project"
     }
   }
 }
