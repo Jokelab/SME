@@ -73,6 +73,20 @@ namespace SME.Transformer.Php
                 base.VisitEchoStmt(node);
             }
         }
+        public override void VisitEvalEx(EvalEx node)
+        {
+            var outputChannel = FindChannel(node, _outputChannels);
+            if (outputChannel != null)
+            {
+                RewriteEvalEx(outputChannel, node);
+                _visitedChannels.Add(outputChannel.Id);
+            }
+            else
+            {
+                //no special treatment
+                base.VisitEvalEx(node);
+            }
+        }
 
         public override void VisitDirectFcnCall(DirectFcnCall node)
         {
@@ -240,6 +254,56 @@ namespace SME.Transformer.Php
 
                     //visit the original call
                     base.VisitEchoStmt(echo);
+                }
+            }
+        }
+
+        private void RewriteEvalEx(Channel outputChannel, EvalEx node)
+        {
+            //the original program (PO') captures all output values
+            if (_isOriginalProgram || outputChannel.Label.Level == _securityLevel.Level || _securityLevel.Level < _minInputLevel)
+            {
+                var functionName = _securityLevel.Level < _minInputLevel ? FunctionNames.CaptureOutput : FunctionNames.StoreOutput;
+                //construct a new call to the capture output function
+                var name = new TranslatedQualifiedName(new QualifiedName(new Name(functionName)), new Span());
+                var parameters = new List<ActualParam>();
+                parameters.Add(new ActualParam(new Span(), new LongIntLiteral(new Span(), outputChannel.Id)));
+                if (node.Code != null)
+                {
+                    parameters.Add(new ActualParam(new Span(), node.Code));
+                }
+
+                var signature = new CallSignature(parameters, new Span());
+                //let factory create a new DirectFcnCall AST node.
+                var storeOutputCall = (DirectFcnCall)_factory.Call(new Span(), name, signature, null);
+
+                //visit the new call
+                base.VisitDirectFcnCall(storeOutputCall);
+            }
+
+            //add a semicolon between the new call and the original call
+            base.VisitEmptyStmt((EmptyStmt)_factory.EmptyStmt(new Span(0, 1)));
+
+            //performing an output to an output channel is only allowed if the current execution has the same security level
+            if (_isOriginalProgram || outputChannel.Label.Level == _securityLevel.Level)
+            {
+
+                if (!_isOriginalProgram)
+                {
+                    //construct a new call to the read output function
+                    var name = new TranslatedQualifiedName(new QualifiedName(new Name(FunctionNames.ReadOutput)), new Span());
+                    var parameters = new List<ActualParam>
+                    {
+                        new ActualParam(new Span(), new LongIntLiteral(new Span(), outputChannel.Id))
+                    };
+
+                    var signature = new CallSignature(parameters, new Span());
+                    //let factory create a new Echo AST node and let it echo the read_output call
+                    var readOutputCall = (DirectFcnCall)_factory.Call(new Span(), name, signature, null);
+                    var evalExpression = (EvalEx)_factory.Eval(new Span(), readOutputCall);
+
+                    //visit the original call
+                    base.VisitEvalEx(evalExpression);
                 }
             }
         }

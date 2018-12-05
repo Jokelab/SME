@@ -38,7 +38,7 @@ namespace SME.Transformer.Php
             }
             base.VisitItemUse(node);
         }
- 
+
         /// <summary>
         /// Visits elements like <?php echo "Hello! " . $name ?>
         /// Echo statements that do not consist entirely of html can be output channels.
@@ -61,7 +61,25 @@ namespace SME.Transformer.Php
 
             base.VisitEchoStmt(node);
         }
-        
+
+        /// <summary>
+        /// Visits elements like 'eval ("my_dynamic_code();")'
+        /// </summary>
+        /// <param name="node"></param>
+        public override void VisitEvalEx(EvalEx node)
+        {
+            //nodes that contain only html code cannot output (server) information
+            var functionName = "eval";
+            var outputLabel = _policy.Output.FirstOrDefault(channel => channel.Name.Equals(functionName));
+            if (outputLabel != null)
+            {
+                var channel = new Channel() { Id = _uniqueId, Label = outputLabel, Location = new PhpSourceLocation(node.Span) };
+                OutputChannels.Add(channel);
+                _uniqueId++;
+            }
+
+            base.VisitEvalEx(node);
+        }
 
         /// <summary>
         /// Visits direct function calls. These elements can be output channels.

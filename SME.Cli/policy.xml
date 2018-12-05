@@ -15,20 +15,24 @@
       <Level>1</Level>
     </ChannelLabel>
   </Input>
-  
+
   <!--Output channels-->
   <Output>
     <ChannelLabel>
       <Name>mysql_query</Name>
       <Level>2</Level>
     </ChannelLabel>
-  <ChannelLabel>
+    <ChannelLabel>
       <Name>echo</Name>
       <Level>2</Level>
     </ChannelLabel>
+    <ChannelLabel>
+      <Name>eval</Name>
+      <Level>2</Level>
+    </ChannelLabel>
   </Output>
-  
-  <!--Sanitize channels-->  
+
+  <!--Sanitize channels-->
   <Sanitize>
     <ChannelLabel>
       <Name>htmlspecialchars</Name>
@@ -41,7 +45,7 @@
       <TargetLevel>2</TargetLevel>
     </ChannelLabel>
   </Sanitize>
-  
+
   <!-- Security levels-->
   <Levels>
     <SecurityLevel>
