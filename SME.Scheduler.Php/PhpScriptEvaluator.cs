@@ -27,13 +27,13 @@ namespace SME.Scheduler.Php
             {
                 //declare methods to store/read channel values
                 ctx.DeclareFunction(FunctionNames.StoreInput, new Func<int, string, string>((id, val) => { ctx.Echo($"Stored input value for channel {id}: {val}\n"); memoryStore.Store(id, val); return val; }));
-                ctx.DeclareFunction(FunctionNames.ReadInput, new Func<int, string, string>((id, val) => { var readValue = memoryStore.Read(id, codeTransformation.SecurityLevel.Level); ctx.Echo($"Read input value for channel {id}: {readValue}\n"); return readValue; }));
+                ctx.DeclareFunction(FunctionNames.GetInput, new Func<int, string, string>((id, val) => { var readValue = memoryStore.Get(id, codeTransformation.SecurityLevel.Level); ctx.Echo($"Get input value for channel {id}: {readValue}\n"); return readValue; }));
                 ctx.DeclareFunction(FunctionNames.StoreSanitize, new Func<int, string, string>((id, val) => { ctx.Echo($"Stored sanitized value for channel {id}: {val}\n"); memoryStore.Store(id, val); return val; }));
-                ctx.DeclareFunction(FunctionNames.ReadSanitize, new Func<int, string, string>((id, val) => { var readValue = memoryStore.Read(id, codeTransformation.SecurityLevel.Level); ctx.Echo($"Read sanitized value for channel {id}: {readValue}\n"); return readValue; }));
+                ctx.DeclareFunction(FunctionNames.GetSanitize, new Func<int, string, string>((id, val) => { var readValue = memoryStore.Get(id, codeTransformation.SecurityLevel.Level); ctx.Echo($"Get sanitized value for channel {id}: {readValue}\n"); return readValue; }));
 
                 ctx.DeclareFunction(FunctionNames.CaptureOutput, new Action<int, string>((id, val) => { ctx.Echo($"Captured output value for channel {id}: {val}\n"); }));
                 ctx.DeclareFunction(FunctionNames.StoreOutput, new Action<int, string>((id, val) => { ctx.Echo($"Stored output value for channel {id}: {val}\n"); memoryStore.Store(id, val); }));
-                ctx.DeclareFunction(FunctionNames.ReadOutput, new Func<int, string>((id) => { var readValue = memoryStore.Read(id, codeTransformation.SecurityLevel.Level); ctx.Echo($"Read output value for channel {id}: {readValue}\n"); return readValue; }));
+                ctx.DeclareFunction(FunctionNames.GetOutput, new Func<int, string>((id) => { var readValue = memoryStore.Get(id, codeTransformation.SecurityLevel.Level); ctx.Echo($"Get output value for channel {id}: {readValue}\n"); return readValue; }));
 
                 ctx.Get = getVariables;
                 ctx.Post = postVariables;

@@ -26,13 +26,13 @@ namespace SME.Shared
         }
 
         /// <summary>
-        /// Read a stored value from the memory store.
+        /// Get a stored value from the memory store.
         /// The key is composed of the id and level.
         /// </summary>
         /// <param name="id"></param>
         /// <param name="level"></param>
         /// <returns></returns>
-        public string Read(int id, int level)
+        public string Get(int id, int level)
         {
             var key = $"{id}_{level}"; 
             if (!_readCount.ContainsKey(key))

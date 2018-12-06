@@ -129,10 +129,10 @@ namespace SME.Transformer.Php
                 bool sanitizeChannelsAvailable = _sanitizeChannels.Any();
 
                 bool doInput = _isOriginalProgram || isSanitizeTransformation || (inputChannel.Label.Level == _securityLevel.Level && !sanitizeChannelsAvailable);
-                var function = doInput ? FunctionNames.StoreInput : FunctionNames.ReadInput;
+                var function = doInput ? FunctionNames.StoreInput : FunctionNames.GetInput;
 
 
-                //construct a new call to the store/read input function
+                //construct a new call to the store/get input function
                 var name = new TranslatedQualifiedName(new QualifiedName(new Name(function)), new Span());
                 var parameters = new List<ActualParam>();
                 parameters.Add(new ActualParam(new Span(), new LongIntLiteral(new Span(), inputChannel.Id)));
@@ -186,8 +186,8 @@ namespace SME.Transformer.Php
 
                 if (!_isOriginalProgram)
                 {
-                    //construct a new call to the read output function
-                    var name = new TranslatedQualifiedName(new QualifiedName(new Name(FunctionNames.ReadOutput)), new Span());
+                    //construct a new call to the get output function
+                    var name = new TranslatedQualifiedName(new QualifiedName(new Name(FunctionNames.GetOutput)), new Span());
                     var parameters = new List<ActualParam>
                     {
                         new ActualParam(new Span(), new LongIntLiteral(new Span(), outputChannel.Id))
@@ -240,8 +240,8 @@ namespace SME.Transformer.Php
 
                 if (!_isOriginalProgram)
                 {
-                    //construct a new call to the read output function
-                    var name = new TranslatedQualifiedName(new QualifiedName(new Name(FunctionNames.ReadOutput)), new Span());
+                    //construct a new call to the get output function
+                    var name = new TranslatedQualifiedName(new QualifiedName(new Name(FunctionNames.GetOutput)), new Span());
                     var parameters = new List<ActualParam>
                     {
                         new ActualParam(new Span(), new LongIntLiteral(new Span(), outputChannel.Id))
@@ -290,8 +290,8 @@ namespace SME.Transformer.Php
 
                 if (!_isOriginalProgram)
                 {
-                    //construct a new call to the read output function
-                    var name = new TranslatedQualifiedName(new QualifiedName(new Name(FunctionNames.ReadOutput)), new Span());
+                    //construct a new call to the get output function
+                    var name = new TranslatedQualifiedName(new QualifiedName(new Name(FunctionNames.GetOutput)), new Span());
                     var parameters = new List<ActualParam>
                     {
                         new ActualParam(new Span(), new LongIntLiteral(new Span(), outputChannel.Id))
@@ -319,7 +319,7 @@ namespace SME.Transformer.Php
             if (storeSanitizedValue || readSanitizedValue)
             {
                 //determine if it should read or store a sanitized value
-                var function = readSanitizedValue && !_isOriginalProgram ? FunctionNames.ReadSanitize : FunctionNames.StoreSanitize;
+                var function = readSanitizedValue && !_isOriginalProgram ? FunctionNames.GetSanitize : FunctionNames.StoreSanitize;
 
                 //construct a new call
                 var name = new TranslatedQualifiedName(new QualifiedName(new Name(function)), new Span());
