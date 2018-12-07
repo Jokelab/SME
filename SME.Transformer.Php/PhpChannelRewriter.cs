@@ -313,13 +313,13 @@ namespace SME.Transformer.Php
             //Store condition: From(sc) >= l
             var storeSanitizedValue = sanitizeChannel.Label.Level >= _securityLevel.Level;
 
-            //Read sanitized value condition: To(sc) >= l ^ l >= min(C)
-            var readSanitizedValue = sanitizeChannel.Label.TargetLevel >= _securityLevel.Level && _securityLevel.Level >= _minInputLevel;
+            //Get sanitized value condition: To(sc) >= l ^ l >= min(C)
+            var getSanitizedValue = sanitizeChannel.Label.TargetLevel >= _securityLevel.Level && _securityLevel.Level >= _minInputLevel;
 
-            if (storeSanitizedValue || readSanitizedValue)
+            if (storeSanitizedValue || getSanitizedValue)
             {
                 //determine if it should read or store a sanitized value
-                var function = readSanitizedValue && !_isOriginalProgram ? FunctionNames.GetSanitize : FunctionNames.StoreSanitize;
+                var function = getSanitizedValue && !_isOriginalProgram ? FunctionNames.GetSanitize : FunctionNames.StoreSanitize;
 
                 //construct a new call
                 var name = new TranslatedQualifiedName(new QualifiedName(new Name(function)), new Span());
