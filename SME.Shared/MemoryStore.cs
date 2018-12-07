@@ -26,7 +26,7 @@ namespace SME.Shared
         }
 
         /// <summary>
-        /// Get a stored value from the memory store.
+        /// Get a stored value from the memory store and increment the pointer for the
         /// The key is composed of the id and level.
         /// </summary>
         /// <param name="id"></param>
@@ -34,6 +34,12 @@ namespace SME.Shared
         /// <returns></returns>
         public string Get(int id, int level)
         {
+            if (!_stores.ContainsKey(id))
+            {
+                //in this case the code tries to read from a store that doesn't exist.
+                return string.Empty;
+            }
+
             var key = $"{id}_{level}"; 
             if (!_readCount.ContainsKey(key))
             {
@@ -43,6 +49,7 @@ namespace SME.Shared
             {
                 _readCount[key]++;
             }
+        
             return _stores[id].Read(_readCount[key]);
         }
 
