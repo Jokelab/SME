@@ -1,0 +1,5 @@
+﻿-get:userData=email@test.com
+-get:UserData=email@test.com
+-get:userData=1 OR 1=1
+-get:UserData=1 OR 1=1
+-get:userData="',@)(;

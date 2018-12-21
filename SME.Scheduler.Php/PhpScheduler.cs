@@ -24,7 +24,8 @@ namespace SME.Scheduler.Php
             PhpArray get = PhpArgumentParser.Parse("get", args);
             PhpArray post = PhpArgumentParser.Parse("post", args);
             PhpArray cookies = PhpArgumentParser.Parse("cookies", args);
-            _evaluator.Evaluate(version, get, post, cookies, memoryStore);
+            PhpArray session = PhpArgumentParser.Parse("session", args);
+            _evaluator.Evaluate(version, get, post, cookies, session, memoryStore);
         }
 
         public virtual IEnumerable<CodeTransformation> SortTransformations(IEnumerable<CodeTransformation> codeTransformations)
@@ -39,11 +40,11 @@ namespace SME.Scheduler.Php
             var sorted = SortTransformations(codeTransformations);
             foreach (var version in sorted)
             {
-                Console.WriteLine($"Executing level {version.SecurityLevel.Name} ({version.SecurityLevel.Level}):");
+                //Console.WriteLine($"Executing level {version.SecurityLevel.Name} ({version.SecurityLevel.Level}):");
 
                 var memStore = version.Kind == TransformationKind.Original ? _originalMemoryStore : _smeMemoryStore;
                 Run(version, args, memStore);
-                Console.Write("\n\n");
+                //Console.Write("\n\n");
             }
         }
 

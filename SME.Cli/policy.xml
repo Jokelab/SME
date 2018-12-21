@@ -39,11 +39,6 @@
       <Level>1</Level>
       <TargetLevel>2</TargetLevel>
     </ChannelLabel>
-    <ChannelLabel>
-      <Name>mysql_real_escape_string</Name>
-      <Level>1</Level>
-      <TargetLevel>2</TargetLevel>
-    </ChannelLabel>
   </Sanitize>
 
   <!-- Security levels-->

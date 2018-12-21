@@ -16,12 +16,11 @@ namespace SME.Scheduler.Php
 
         }
 
-        public void Evaluate(CodeTransformation codeTransformation, PhpArray getVariables, PhpArray postVariables, PhpArray cookieVariables, MemoryStore memoryStore)
+        public void Evaluate(CodeTransformation codeTransformation, PhpArray getVariables, PhpArray postVariables, PhpArray cookieVariables, PhpArray sessionVariables, MemoryStore memoryStore)
         {
 
             var fullpath = Path.Combine(Directory.GetCurrentDirectory(), "main.php");
-            
-            
+
             //Context.CreateConsole() is a Peachpie runtime object, representing a PHP runtime thread. 
             using (var ctx = Context.CreateConsole(string.Empty, new string[] { }))
             {
@@ -38,13 +37,12 @@ namespace SME.Scheduler.Php
                 ctx.Get = getVariables;
                 ctx.Post = postVariables;
                 ctx.Cookie = cookieVariables;
-
-                
+                ctx.Session = sessionVariables;
 
                 var script = _provider.CreateScript(new Context.ScriptOptions()
                 {
                     Context = ctx,
-                    Location = new Location(fullpath,0,0),
+                    Location = new Location(fullpath, 0, 0),
                     EmitDebugInformation = true,
                     IsSubmission = false,
                     AdditionalReferences = new string[] {
@@ -54,9 +52,11 @@ namespace SME.Scheduler.Php
                     },
                 }, codeTransformation.Code);
 
+
                 //evaluate the php code
                 script.Evaluate(ctx, ctx.Globals, null);
-                
+
+
             }
         }
     }

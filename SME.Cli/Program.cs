@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using SME.Factory;
-using SME.Shared;
-
+using System.Threading.Tasks;
 
 namespace SME.Cli
 {
@@ -11,43 +9,44 @@ namespace SME.Cli
     {
         static void Main(string[] args)
         {
+
             //read input file content
             var inputFilePath = GetFileArgument(args, "-input:", @"samples\sqli.php");
-            var content = GetInput(inputFilePath);
-            if (string.IsNullOrEmpty(content)) return; //exit if there is no input
+
+            //file to write test results to
+            var outputFilePath = GetFileArgument(args, "-output:", "output.txt");
 
             //read policy
-            var policyPath = GetFileArgument(args, "-policy:", "policy.xml");
-            var policy = GetPolicy(policyPath);
-            if (policy == null) return; //exit if there is no policy
+            var policyFilePath = GetFileArgument(args, "-policy:", "policy.xml");
 
-            //create factory based on the file extension
-            var factory = FactoryProducer.GetFactory(Path.GetExtension(inputFilePath));
+            //optional parameters file
+            var paramsFilePath = GetFileArgument(args, "-params:", string.Empty);
 
-            //construct transformer and apply transformations
-            var transformer = factory.CreateTransformer();
-            Console.WriteLine($"Starting transformation of {inputFilePath}");
-            var transformations = transformer.Transform(content, policy);
-            if (!ValidateTransformations(transformations)) return;
-            Console.WriteLine($"Transformation completed. Generated {transformations.CodeTransformations.Count} code versions.");
+            //optional: save transformations or not
+            var saveTransformations = HasArgument(args, "-save");
 
-            //persist transformed code
-            if (HasArgument(args, "-save"))
+            // get the file attributes for file or directory
+            FileAttributes attr = File.GetAttributes(inputFilePath);
+
+            //create a test set based on the input directory or for a single file
+            var set = new TestSet(policyFilePath, outputFilePath, paramsFilePath, saveTransformations, Console.Out);
+
+            //detect whether its a directory or file
+            if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
             {
-                transformations.SaveTransformations(inputFilePath);
-                Console.WriteLine($"Saved the transformed code versions to {Path.GetDirectoryName(inputFilePath)}");
+                var files = Directory.GetFiles(inputFilePath, "*.php");
+                foreach (var file in files)
+                {
+                    set.AddFile(file);
+                }
+            }
+            else
+            {
+                set.AddFile(inputFilePath);
             }
 
-            //construct scheduler and schedule the code for execution
-            Console.WriteLine($"Starting scheduler.");
-            var scheduler = factory.CreateScheduler();
-            scheduler.Schedule(transformations.CodeTransformations, args);
-            Console.WriteLine($"Scheduler completed.");
-
-            //determine verdict after execution
-            var verdict = scheduler.GetVerdict(transformations.OutputChannels);
-            ShowVerdict(verdict, policy, content);
-
+            set.RunTests(args);
+            
         }
 
         /// <summary>
@@ -88,108 +87,9 @@ namespace SME.Cli
             return args.Any(arg => arg.ToLowerInvariant().StartsWith(argument));
         }
 
-        /// <summary>
-        /// Get input code from the specified path
-        /// </summary>
-        /// <param name="fullPath"></param>
-        /// <returns></returns>
-        private static string GetInput(string fullPath)
-        {
-            var content = string.Empty;
-            if (File.Exists(fullPath))
-            {
-                return File.ReadAllText(fullPath);
-            }
-            else
-            {
-                Console.WriteLine($"Input file {fullPath} does not exist.");
-            }
-            return string.Empty;
-        }
 
-        /// <summary>
-        /// Read a policy file from the specified path
-        /// </summary>
-        /// <param name="policyPath"></param>
-        /// <returns></returns>
-        private static IPolicy GetPolicy(string policyPath)
-        {
-            
-            if (File.Exists(policyPath))
-            {
-                return PolicyReader.ReadXml<Policy>(policyPath);
-            }
-            else
-            {
-                Console.WriteLine($"Policy file {policyPath} does not exist.");
-            }
-            return null;
-        }
 
-        /// <summary>
-        /// Perform some checks to determine if the transformation is valid
-        /// </summary>
-        /// <param name="transformations"></param>
-        /// <returns></returns>
-        private static bool ValidateTransformations(TransformationResult transformations)
-        {
-            if (transformations.Errors.Count > 0)
-            {
-                Console.WriteLine("Error(s) in transformation: ");
-                foreach (var error in transformations.Errors)
-                {
-                    Console.WriteLine(error);
-                }
-                return false;
-            }
 
-            if (transformations.InputChannels.Count == 0)
-            {
-                Console.WriteLine("No input channels found that match the active policy.");
-                return false;
-            }
 
-            if (transformations.OutputChannels.Count == 0)
-            {
-                Console.WriteLine("No output channels found that match the active policy.");
-                return false;
-            }
-
-            if (transformations.CodeTransformations.Count == 0)
-            {
-                Console.WriteLine("No code transformations available.");
-                return false;
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Show verdict about the input code
-        /// </summary>
-        /// <param name="verdict"></param>
-        private static void ShowVerdict(Verdict verdict, IPolicy policy, string document)
-        {
-            Console.WriteLine("===== VERDICT =====");
-            if (verdict.InterferenceDetected())
-            {
-                //code is interferent
-                Console.WriteLine($"Observed {verdict.InterferentChannels.Count} channel(s) with different output values between the SME exection and the original execution.\nThe code is thus interferent.");
-                foreach (var chan in verdict.InterferentChannels)
-                {
-                    var levelName = policy.Levels.Where(l => l.Level == chan.Label.Level).Select(l => l.Name).FirstOrDefault();
-                    Console.Write($"\n=> Channel ID {chan.Id} (level {levelName})\n");
-                    var code = chan.Location.GetText(document);
-                    Console.Write($"Code: {code}");
-                    Console.Write($"\nPosition in original code:  {chan.Location.GetLocation(document)}\n");
-                    Console.Write($"Captured differences:\n{verdict.Messages[chan.Id]}");
-                }
-
-            }
-            else
-            {
-                //code shows non-interference for the provided input values
-                Console.WriteLine("No interferent channels detected for the provided input values.");
-            }
-        }
     }
 }
