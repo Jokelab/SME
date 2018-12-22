@@ -12,17 +12,6 @@ namespace SME.Cli
         private TextWriter _writer;
         private string[] _arguments;
 
-        public TestCase(string inputFile, string policyFile, bool saveTransformations, string[] arguments, TextWriter writer)
-        {
-
-            _inputFilePath = inputFile;
-            InputFileContent = GetInput(inputFile);
-            Policy = GetPolicy(policyFile);
-            _saveTransformations = saveTransformations;
-            _arguments = arguments;
-            _writer = writer;
-        }
-
         public TestCase(string inputFile, IPolicy policy, bool saveTransformations, string[] arguments, TextWriter writer)
         {
 

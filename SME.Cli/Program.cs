@@ -9,32 +9,41 @@ namespace SME.Cli
     {
         static void Main(string[] args)
         {
+            //initialize options
+            var options = new TestOptions
+            {
+                //read input file content
+                InputPath = GetFileArgument(args, "-input:", @"samples\sqli.php"),
 
-            //read input file content
-            var inputFilePath = GetFileArgument(args, "-input:", @"samples\sqli.php");
+                //file to write test results to
+                OutputPath = GetFileArgument(args, "-output:", "output.txt"),
 
-            //file to write test results to
-            var outputFilePath = GetFileArgument(args, "-output:", "output.txt");
+                //read policy
+                PolicyPath = GetFileArgument(args, "-policy:", "policy.xml"),
 
-            //read policy
-            var policyFilePath = GetFileArgument(args, "-policy:", "policy.xml");
+                //optional parameters file
+                ParametersPath = GetFileArgument(args, "-params:", string.Empty),
 
-            //optional parameters file
-            var paramsFilePath = GetFileArgument(args, "-params:", string.Empty);
+                //optional: save transformations or not
+                SaveTransformations = HasArgument(args, "-save"),
 
-            //optional: save transformations or not
-            var saveTransformations = HasArgument(args, "-save");
+                //option: write verdict to output file
+                ShowVerdict = HasArgument(args, "-showverdict")
+            };
+
+
 
             // get the file attributes for file or directory
-            FileAttributes attr = File.GetAttributes(inputFilePath);
+            FileAttributes attr = File.GetAttributes(options.InputPath);
 
             //create a test set based on the input directory or for a single file
-            var set = new TestSet(policyFilePath, outputFilePath, paramsFilePath, saveTransformations, Console.Out);
+            var set = new TestSet(options, Console.Out);
 
             //detect whether its a directory or file
             if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
             {
-                var files = Directory.GetFiles(inputFilePath, "*.php");
+                //if it is a directory, add all php files to the test set
+                var files = Directory.GetFiles(options.InputPath, "*.php");
                 foreach (var file in files)
                 {
                     set.AddFile(file);
@@ -42,11 +51,11 @@ namespace SME.Cli
             }
             else
             {
-                set.AddFile(inputFilePath);
+                set.AddFile(options.InputPath);
             }
 
+            //start the tests
             set.RunTests(args);
-            
         }
 
         /// <summary>

@@ -1,0 +1,342 @@
+14:13:23: === Test started ===
+14:13:26: CWE_79__array-GET__func_addslashes__Unsafe_use_untrusted_data-attribute_Name.php is interferent for input values: -get:userData=email@test.com.
+14:13:26: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo "<div ". $tainted ."= bob />" ;
+
+Position in original code:  1326..1362 (Line 55)
+Captured differences: 
+#1 Original	: <div email@test.com= bob />
+#1 SME		: <div = bob />
+
+
+14:13:26: CWE_79__array-GET__func_addslashes__Unsafe_use_untrusted_data-comment.php is interferent for input values: -get:userData=email@test.com.
+14:13:26: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo $tainted ;
+
+Position in original code:  1324..1339 (Line 56)
+Captured differences: 
+#1 Original	: email@test.com
+#1 SME		: 
+
+
+14:13:27: CWE_79__array-GET__func_addslashes__Unsafe_use_untrusted_data-script.php is interferent for input values: -get:userData=email@test.com.
+14:13:27: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo $tainted ;
+
+Position in original code:  1327..1342 (Line 56)
+Captured differences: 
+#1 Original	: email@test.com
+#1 SME		: 
+
+
+14:13:27: CWE_79__array-GET__func_addslashes__Unsafe_use_untrusted_data-style.php is interferent for input values: -get:userData=email@test.com.
+14:13:27: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo $tainted ;
+
+Position in original code:  1321..1336 (Line 56)
+Captured differences: 
+#1 Original	: email@test.com
+#1 SME		: 
+
+
+14:13:27: CWE_79__array-GET__func_addslashes__Unsafe_use_untrusted_data-tag_Name.php is interferent for input values: -get:userData=email@test.com.
+14:13:27: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo "<".  $tainted ." href= \"/bob\" />" ;
+
+Position in original code:  1329..1372 (Line 56)
+Captured differences: 
+#1 Original	: <email@test.com href= "/bob" />
+#1 SME		: < href= "/bob" />
+
+
+14:13:28: CWE_79__array-GET__func_addslashes__Use_untrusted_data-body.php is interferent for input values: -get:userData=email@test.com.
+14:13:28: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo $tainted ;
+
+Position in original code:  1318..1333 (Line 56)
+Captured differences: 
+#1 Original	: email@test.com
+#1 SME		: 
+
+
+14:13:28: CWE_79__array-GET__func_addslashes__Use_untrusted_data-div.php is interferent for input values: -get:userData=email@test.com.
+14:13:28: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo $tainted ;
+
+Position in original code:  1326..1341 (Line 57)
+Captured differences: 
+#1 Original	: email@test.com
+#1 SME		: 
+
+
+14:13:28: CWE_79__array-GET__func_addslashes__Use_untrusted_data_attribute-unquoted_Attr.php is interferent for input values: -get:userData=email@test.com.
+14:13:28: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo "<div id=". $tainted .">content</div>" ;
+
+Position in original code:  1330..1375 (Line 56)
+Captured differences: 
+#1 Original	: <div id=email@test.com>content</div>
+#1 SME		: <div id=>content</div>
+
+
+14:13:28: CWE_79__array-GET__func_addslashes__Use_untrusted_data_propertyValue_CSS-double_Quoted_Property_Value.php is interferent for input values: -get:userData=email@test.com.
+14:13:28: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo "body { color :\"". $tainted ."\" ; }" ;
+
+Position in original code:  1346..1391 (Line 56)
+Captured differences: 
+#1 Original	: body { color :"email@test.com" ; }
+#1 SME		: body { color :"" ; }
+
+
+14:13:29: CWE_79__array-GET__func_addslashes__Use_untrusted_data_propertyValue_CSS-property_Value.php is interferent for input values: -get:userData=email@test.com.
+14:13:29: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo "body { color :". $tainted ." ; }" ;
+
+Position in original code:  1332..1373 (Line 56)
+Captured differences: 
+#1 Original	: body { color :email@test.com ; }
+#1 SME		: body { color : ; }
+
+
+14:13:29: CWE_79__array-GET__func_addslashes__Use_untrusted_data_propertyValue_CSS-quoted_Property_Value.php is interferent for input values: -get:userData=email@test.com.
+14:13:29: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo "body { color :\'". $tainted ."\' ; }" ;
+
+Position in original code:  1347..1392 (Line 56)
+Captured differences: 
+#1 Original	: body { color :\'email@test.com\' ; }
+#1 SME		: body { color :\'\' ; }
+
+
+14:13:29: CWE_79__array-GET__func_addslashes__Use_untrusted_data_propertyValue_CSS-span_Style_Property_Value.php seems noninterferent with input values: -get:userData=email@test.com
+14:13:29: CWE_79__array-GET__func_addslashes__Use_untrusted_data_propertyValue_CSS-span_Style_Property_Value.php seems noninterferent with input values: -get:UserData=email@test.com
+14:13:29: CWE_79__array-GET__func_addslashes__Use_untrusted_data_propertyValue_CSS-span_Style_Property_Value.php seems noninterferent with input values: -get:userData=1 OR 1=1
+14:13:29: CWE_79__array-GET__func_addslashes__Use_untrusted_data_propertyValue_CSS-span_Style_Property_Value.php seems noninterferent with input values: -get:UserData=1 OR 1=1
+14:13:29: CWE_79__array-GET__func_addslashes__Use_untrusted_data_propertyValue_CSS-span_Style_Property_Value.php seems noninterferent with input values: -get:userData="',@)(;
+14:13:30: CWE_79__array-GET__func_addslashes__Use_untrusted_data_script-window_SetInterval.php is interferent for input values: -get:userData=email@test.com.
+14:13:30: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo "window.setInterval('". $tainted ."');" ;
+
+Position in original code:  1343..1389 (Line 56)
+Captured differences: 
+#1 Original	: window.setInterval('email@test.com');
+#1 SME		: window.setInterval('');
+
+
+14:13:30: 
+
+=== Test summary ===
+14:13:30: Result: detected 12/13 programs (92,3%) which show interference.
+14:13:30: Duration: 00:00:06.4256610. Average time per program: 0,494281615384615 seconds.
+14:19:21: === Test started ===
+14:19:24: CWE_79__array-GET__func_addslashes__Unsafe_use_untrusted_data-attribute_Name.php is interferent for input values: -get:userData=email@test.com.
+14:19:24: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo "<div ". $tainted ."= bob />" ;
+
+Position in original code:  1326..1362 (Line 55)
+Captured differences: 
+#1 Original	: <div email@test.com= bob />
+#1 SME		: <div = bob />
+
+
+14:19:24: CWE_79__array-GET__func_addslashes__Unsafe_use_untrusted_data-comment.php is interferent for input values: -get:userData=email@test.com.
+14:19:24: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo $tainted ;
+
+Position in original code:  1324..1339 (Line 56)
+Captured differences: 
+#1 Original	: email@test.com
+#1 SME		: 
+
+
+14:19:24: CWE_79__array-GET__func_addslashes__Unsafe_use_untrusted_data-script.php is interferent for input values: -get:userData=email@test.com.
+14:19:24: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo $tainted ;
+
+Position in original code:  1327..1342 (Line 56)
+Captured differences: 
+#1 Original	: email@test.com
+#1 SME		: 
+
+
+14:19:25: CWE_79__array-GET__func_addslashes__Unsafe_use_untrusted_data-style.php is interferent for input values: -get:userData=email@test.com.
+14:19:25: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo $tainted ;
+
+Position in original code:  1321..1336 (Line 56)
+Captured differences: 
+#1 Original	: email@test.com
+#1 SME		: 
+
+
+14:19:25: CWE_79__array-GET__func_addslashes__Unsafe_use_untrusted_data-tag_Name.php is interferent for input values: -get:userData=email@test.com.
+14:19:25: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo "<".  $tainted ." href= \"/bob\" />" ;
+
+Position in original code:  1329..1372 (Line 56)
+Captured differences: 
+#1 Original	: <email@test.com href= "/bob" />
+#1 SME		: < href= "/bob" />
+
+
+14:19:25: CWE_79__array-GET__func_addslashes__Use_untrusted_data-body.php is interferent for input values: -get:userData=email@test.com.
+14:19:25: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo $tainted ;
+
+Position in original code:  1318..1333 (Line 56)
+Captured differences: 
+#1 Original	: email@test.com
+#1 SME		: 
+
+
+14:19:26: CWE_79__array-GET__func_addslashes__Use_untrusted_data-div.php is interferent for input values: -get:userData=email@test.com.
+14:19:26: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo $tainted ;
+
+Position in original code:  1326..1341 (Line 57)
+Captured differences: 
+#1 Original	: email@test.com
+#1 SME		: 
+
+
+14:19:26: CWE_79__array-GET__func_addslashes__Use_untrusted_data_attribute-unquoted_Attr.php is interferent for input values: -get:userData=email@test.com.
+14:19:26: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo "<div id=". $tainted .">content</div>" ;
+
+Position in original code:  1330..1375 (Line 56)
+Captured differences: 
+#1 Original	: <div id=email@test.com>content</div>
+#1 SME		: <div id=>content</div>
+
+
+14:19:26: CWE_79__array-GET__func_addslashes__Use_untrusted_data_propertyValue_CSS-double_Quoted_Property_Value.php is interferent for input values: -get:userData=email@test.com.
+14:19:26: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo "body { color :\"". $tainted ."\" ; }" ;
+
+Position in original code:  1346..1391 (Line 56)
+Captured differences: 
+#1 Original	: body { color :"email@test.com" ; }
+#1 SME		: body { color :"" ; }
+
+
+14:19:27: CWE_79__array-GET__func_addslashes__Use_untrusted_data_propertyValue_CSS-property_Value.php is interferent for input values: -get:userData=email@test.com.
+14:19:27: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo "body { color :". $tainted ." ; }" ;
+
+Position in original code:  1332..1373 (Line 56)
+Captured differences: 
+#1 Original	: body { color :email@test.com ; }
+#1 SME		: body { color : ; }
+
+
+14:19:27: CWE_79__array-GET__func_addslashes__Use_untrusted_data_propertyValue_CSS-quoted_Property_Value.php is interferent for input values: -get:userData=email@test.com.
+14:19:27: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo "body { color :\'". $tainted ."\' ; }" ;
+
+Position in original code:  1347..1392 (Line 56)
+Captured differences: 
+#1 Original	: body { color :\'email@test.com\' ; }
+#1 SME		: body { color :\'\' ; }
+
+
+14:19:27: CWE_79__array-GET__func_addslashes__Use_untrusted_data_propertyValue_CSS-span_Style_Property_Value.php is interferent for input values: -get:userData=email@test.com.
+14:19:27: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo "<span style=\"color :". $tainted ."\">Hey</span>" ;
+
+Position in original code:  1353..1410 (Line 56)
+Captured differences: 
+#1 Original	: <span style="color :email@test.com">Hey</span>
+#1 SME		: <span style="color :">Hey</span>
+
+
+14:19:28: CWE_79__array-GET__func_addslashes__Use_untrusted_data_script-window_SetInterval.php is interferent for input values: -get:userData=email@test.com.
+14:19:28: Observed 1 channel(s) with different output values between the SME exection and the original execution.
+
+
+=> Channel ID 1 (level H)
+Code: echo "window.setInterval('". $tainted ."');" ;
+
+Position in original code:  1343..1389 (Line 56)
+Captured differences: 
+#1 Original	: window.setInterval('email@test.com');
+#1 SME		: window.setInterval('');
+
+
+14:19:28: 
+
+=== Test summary ===
+14:19:28: Result: detected 13/13 programs (100,0%) which show interference.
+14:19:28: Duration: 00:00:06.2774380. Average time per program: 0,482879846153846 seconds.

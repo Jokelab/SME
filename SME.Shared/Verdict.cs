@@ -29,19 +29,18 @@ namespace SME.Shared
         public string Show(IPolicy policy, string poFileContent)
         {
             StringBuilder builder = new StringBuilder();
-            builder.AppendLine("===== VERDICT =====");
             if (InterferenceDetected())
             {
                 //code is interferent
-                builder.AppendLine($"Observed {InterferentChannels.Count} channel(s) with different output values between the SME exection and the original execution.\nThe code is thus interferent.");
+                builder.AppendLine($"Observed {InterferentChannels.Count} channel(s) with different output values between the SME exection and the original execution.\n");
                 foreach (var chan in InterferentChannels)
                 {
                     var levelName = policy.Levels.Where(l => l.Level == chan.Label.Level).Select(l => l.Name).FirstOrDefault();
-                    builder.AppendLine($"\n=> Channel ID {chan.Id} (level {levelName})\n");
+                    builder.Append($"\n=> Channel ID {chan.Id} (level {levelName})\n");
                     var code = chan.Location.GetText(poFileContent);
-                    builder.AppendLine($"Code: {code}");
-                    builder.AppendLine($"\nPosition in original code:  {chan.Location.GetLocation(poFileContent)}\n");
-                    builder.AppendLine($"Captured differences:\n{Messages[chan.Id]}");
+                    builder.Append($"Code: {code}\n");
+                    builder.AppendLine($"\nPosition in original code:  {chan.Location.GetLocation(poFileContent)}");
+                    builder.Append($"Captured differences: \r\n{Messages[chan.Id]}\n");
                 }
 
             }

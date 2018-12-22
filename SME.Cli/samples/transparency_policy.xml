@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Policy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!--Input channels-->
+  <Input>
+    <ChannelLabel>
+      <Name>_GET</Name>
+      <Level>1</Level>
+    </ChannelLabel>
+	</Input>
+
+  <!--Output channels-->
+  <Output>
+    <ChannelLabel>
+      <Name>output</Name>
+      <Level>2</Level>
+    </ChannelLabel>
+  </Output>
+
+  <!--Sanitize channels-->
+  <Sanitize>
+    <ChannelLabel>
+      <Name>sanitize</Name>
+      <Level>1</Level>
+      <TargetLevel>2</TargetLevel>
+    </ChannelLabel>
+  </Sanitize>
+
+  <!-- Security levels-->
+  <Levels>
+    <SecurityLevel>
+      <Level>1</Level>
+      <Name>L</Name>
+    </SecurityLevel>
+    <SecurityLevel>
+      <Level>2</Level>
+      <Name>H</Name>
+    </SecurityLevel>
+  </Levels>
+</Policy>

@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Policy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!--Input channels-->
+  <Input>
+    <ChannelLabel>
+      <Name>_GET</Name>
+      <Level>1</Level>
+    </ChannelLabel>
+	 <ChannelLabel>
+      <Name>_POST</Name>
+      <Level>2</Level>
+    </ChannelLabel>
+	</Input>
+
+  <!--Output channels-->
+  <Output>
+    <ChannelLabel>
+      <Name>echo</Name>
+      <Level>2</Level>
+    </ChannelLabel>
+    <ChannelLabel>
+      <Name>eval</Name>
+      <Level>3</Level>
+    </ChannelLabel>
+  </Output>
+
+  <!--Sanitize channels-->
+  <Sanitize>
+    <ChannelLabel>
+      <Name>htmlspecialchars</Name>
+      <Level>1</Level>
+      <TargetLevel>2</TargetLevel>
+    </ChannelLabel>
+    <ChannelLabel>
+      <Name>mysql_real_escape_string</Name>
+      <Level>1</Level>
+      <TargetLevel>2</TargetLevel>
+    </ChannelLabel>
+  </Sanitize>
+
+  <!-- Security levels-->
+  <Levels>
+    <SecurityLevel>
+      <Level>1</Level>
+      <Name>L</Name>
+    </SecurityLevel>
+    <SecurityLevel>
+      <Level>2</Level>
+      <Name>M</Name>
+    </SecurityLevel>
+	<SecurityLevel>
+      <Level>3</Level>
+      <Name>H</Name>
+    </SecurityLevel>
+  </Levels>
+</Policy>
