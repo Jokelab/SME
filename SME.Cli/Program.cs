@@ -16,7 +16,7 @@ namespace SME.Cli
                 InputPath = GetFileArgument(args, "-input:", @"samples\sqli.php"),
 
                 //file to write test results to
-                OutputPath = GetFileArgument(args, "-output:", "output.txt"),
+                OutputPath = GetFileArgument(args, "-output:", string.Empty),
 
                 //read policy
                 PolicyPath = GetFileArgument(args, "-policy:", "policy.xml"),
