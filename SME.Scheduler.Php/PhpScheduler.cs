@@ -48,7 +48,7 @@ namespace SME.Scheduler.Php
             }
         }
 
-        public Verdict GetVerdict(List<Channel> outputChannels)
+        public Verdict GetVerdict(IEnumerable<Channel> outputChannels)
         {
             return OutputComparer.Compare(outputChannels, _smeMemoryStore, _originalMemoryStore);
         }

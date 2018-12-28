@@ -8,7 +8,7 @@ namespace SME.Shared
     public class OutputComparer
     {
 
-        public static Verdict Compare(List<Channel> outputChannels, MemoryStore smeStore, MemoryStore originalStore)
+        public static Verdict Compare(IEnumerable<Channel> outputChannels, MemoryStore smeStore, MemoryStore originalStore)
         {
             var outcome = new Verdict();
 
