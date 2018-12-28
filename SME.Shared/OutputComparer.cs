@@ -42,8 +42,8 @@ namespace SME.Shared
                     {
                         originalVal = originalValues[i];
                     }
-
-                    if (!smeVal.Equals(originalVal))
+                    //check if both values are not null before comparing them
+                    if (smeVal != null && originalVal != null && !smeVal.Equals(originalVal))
                     {
                         //found a difference, so report it as being interferent
                         if (!outcome.Messages.ContainsKey(channel.Id))
