@@ -44,6 +44,7 @@ namespace SME.Cli
         public List<TestOutput> RunTests(string[] args)
         {
             var result = new List<TestOutput>();
+            int errorCount = 0;
             var allTasks = new List<Task>();
             var startTime = DateTime.Now;
             //fetch input values
@@ -58,7 +59,7 @@ namespace SME.Cli
                 try
                 {
                     _writer.WriteLine($"Starting tests for {file}");
-
+                    
                     foreach (var paramValues in parameters)
                     {
                         var test = new TestCase(file, _policy, _options.SaveTransformations, paramValues, _writer);
@@ -75,6 +76,12 @@ namespace SME.Cli
                                 WriteOutput(verdictText);
                             }
                             //stop trying other input values if interference is detected
+                            break;
+                        }
+                        else if (verdict.TransformationResult != null && verdict.TransformationResult.Errors.Count > 0)
+                        {
+                            WriteOutput($"{Path.GetFileName(file)} failed transformation: {string.Join(",", verdict.TransformationResult.Errors)}");
+                            errorCount++;
                             break;
                         }
                         else
@@ -95,18 +102,20 @@ namespace SME.Cli
 
             }
 
-            WriteSummary(result, startTime, DateTime.Now);
+            WriteSummary(result, errorCount, startTime, DateTime.Now);
 
             return result;
         }
 
-        private void WriteSummary(List<TestOutput> testResult, DateTime start, DateTime end)
+        private void WriteSummary(List<TestOutput> testResult, int errorCount, DateTime start, DateTime end)
         {
             var ratio = testResult.Count / (decimal)_files.Count;
+            var errorRatio = errorCount / (decimal)_files.Count;
             if (_files.Count > 1)
             {
                 WriteOutput($"\n\n=== Test summary ===");
                 WriteOutput($"Result: detected {testResult.Count}/{_files.Count} programs ({ratio.ToString("0.0%")}) which show interference.");
+                WriteOutput($"Result: {errorCount}/{_files.Count} programs ({errorRatio.ToString("0.0%")}) which were erroneous (no input/output channels or syntax errors).");
                 WriteOutput($"Duration: {end-start}. Average time per program: {(end-start).TotalSeconds / _files.Count} seconds.");
             }
         }

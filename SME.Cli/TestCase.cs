@@ -90,19 +90,26 @@ namespace SME.Cli
 
             if (transformations.InputChannels.Count == 0)
             {
-                WriteLine("No input channels found that match the active policy.");
+                var text = "No input channels found that match the active policy.";
+                transformations.Errors.Add(text);
+                WriteLine(text);
+
                 return false;
             }
 
             if (transformations.OutputChannels.Count == 0)
             {
-                WriteLine("No output channels found that match the active policy.");
+                var text = "No output channels found that match the active policy.";
+                transformations.Errors.Add(text);
+                WriteLine(text);
                 return false;
             }
 
             if (transformations.CodeTransformations.Count == 0)
             {
-                WriteLine("No code transformations available.");
+                var text = "No code transformations available.";
+                transformations.Errors.Add(text);
+                WriteLine(text);
                 return false;
             }
             return true;
