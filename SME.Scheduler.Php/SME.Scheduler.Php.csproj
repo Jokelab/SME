@@ -10,6 +10,7 @@
     <PackageReference Include="Peachpie.Library.MySql" Version="0.9.28" />
     <PackageReference Include="Peachpie.Library.Network" Version="0.9.28" />
     <PackageReference Include="Peachpie.Library.Scripting" Version="0.9.28" />
+    <PackageReference Include="Peachpie.Library.XmlDom" Version="0.9.28" />
     <PackageReference Include="Peachpie.Runtime" Version="0.9.28" />
   </ItemGroup>
 

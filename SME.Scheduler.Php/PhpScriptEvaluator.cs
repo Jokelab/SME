@@ -48,7 +48,8 @@ namespace SME.Scheduler.Php
                     AdditionalReferences = new string[] {
                         typeof(Peachpie.Library.Graphics.PhpImage).Assembly.Location,
                         typeof(Peachpie.Library.Network.CURLFunctions).Assembly.Location,
-                        typeof(Peachpie.Library.MySql.MySql).Assembly.Location
+                        typeof(Peachpie.Library.MySql.MySql).Assembly.Location,
+                        typeof(Peachpie.Library.XmlDom.XmlDom).Assembly.Location,
                     },
                 }, codeTransformation.Code);
 
