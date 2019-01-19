@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SME.Scheduler.Php\SME.Scheduler.Php.csproj" />
-    <ProjectReference Include="..\SME.Transformer.CSharp\SME.Transformer.CSharp.csproj" />
     <ProjectReference Include="..\SME.Transformer.Php\SME.Transformer.Php.csproj" />
   </ItemGroup>
 
