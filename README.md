@@ -72,11 +72,11 @@ The following command line parameters are supported:
 
 | Parameter     | Description  | Default       
 | ------------- |:-------------|:-------------:|
-| -input:<path>      | Path to a program. If the path is not rooted, the current directory will be assumed. | [samples\sqli.php](https://github.com/Jokelab/SME/blob/master/SME.Cli/samples/sqli.php)
+| -input:<path>      | Path to a program. If the path is not rooted, the current directory will be assumed. If the provided path is a directory, all files in the directory will be added as separate test cases. | [samples\sqli.php](https://github.com/Jokelab/SME/blob/master/SME.Cli/samples/sqli.php)
 | -output:<path>      | Path to an output file. If the path is not rooted, the current directory will be assumed. If empty, no output file will be generated. | Empty
 | -policy:<path>      | Path to XML policy file. If the path is not rooted, the current directory will be assumed. | [policy.xml](https://github.com/Jokelab/SME/blob/master/SME.Cli/policy.xml)
 | -params:<path>      | Path to a parameters file which can be used to provide different input values for a single program. Each line in the parameters file represents a set of input values. If not empty, it will override the -get -post -cookie and -session options. | Empty
-| -save| Persist the code transformations in the same directory as the input file.       | No
+| -save| Persist the code transformations in the same directory as the -input parameter.       | No
 | -showverdict | Show detailed verdict information | No 
 | -get:<values> | HTTP-get input values. Example: -get:key1=value1&key2=value2       | None
 | -post:<values> | HTTP-post input values. Example: -post:key1=value1&key2=value2      | None
