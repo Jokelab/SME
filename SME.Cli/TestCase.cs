@@ -52,7 +52,17 @@ namespace SME.Cli
             //construct scheduler and schedule the code for execution
             WriteLine($"Starting scheduler.");
             var scheduler = factory.CreateScheduler();
-            scheduler.Schedule(transformations.CodeTransformations, _arguments);
+            try
+            {
+                scheduler.Schedule(transformations.CodeTransformations, _arguments);
+            }
+            catch (Exception ex)
+            {
+                var errorVerdict = new Verdict();
+                transformations.Errors.Add(ex.ToString());
+                errorVerdict.TransformationResult = transformations;
+                return errorVerdict;
+            }
             WriteLine($"Scheduler completed.");
 
             //determine verdict after execution

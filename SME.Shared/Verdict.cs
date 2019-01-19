@@ -11,6 +11,8 @@ namespace SME.Shared
 
         public List<Channel> InterferentChannels = new List<Channel>();
 
+        public List<string> ScheduleErrors = new List<string>();
+
         public Dictionary<int, StringBuilder> Messages = new Dictionary<int, StringBuilder>();
 
         /// <summary>

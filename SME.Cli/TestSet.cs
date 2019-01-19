@@ -84,6 +84,11 @@ namespace SME.Cli
                             errorCount++;
                             break;
                         }
+                        else if (verdict.ScheduleErrors.Count > 0)
+                        {
+                            WriteOutput($"{Path.GetFileName(file)} failed scheduling: {string.Join(",", verdict.ScheduleErrors)}");
+                            errorCount++;
+                        }
                         else
                         {
                             WriteOutput($"{Path.GetFileName(file)} seems noninterferent with input values: {string.Join(",", paramValues)}");
@@ -115,7 +120,7 @@ namespace SME.Cli
             {
                 WriteOutput($"\n\n=== Test summary ===");
                 WriteOutput($"Result: detected {testResult.Count}/{_files.Count} programs ({ratio.ToString("0.0%")}) which show interference.");
-                WriteOutput($"Result: {errorCount}/{_files.Count} programs ({errorRatio.ToString("0.0%")}) which were erroneous (no input/output channels or syntax errors).");
+                WriteOutput($"Result: {errorCount}/{_files.Count} programs ({errorRatio.ToString("0.0%")}) were erroneous (no input/output channels or (runtime) errors).");
                 WriteOutput($"Duration: {end-start}. Average time per program: {(end-start).TotalSeconds / _files.Count} seconds.");
             }
         }
