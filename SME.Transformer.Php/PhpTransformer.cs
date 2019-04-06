@@ -98,7 +98,7 @@ namespace SME.Transformer.Php
                 result.CodeTransformations.Add(version);
             }
 
-            //create PO version
+            //create P version
             var poSourceUnit = new CodeSourceUnit(content, filename, System.Text.Encoding.UTF8, Lexer.LexicalStates.INITIAL, LanguageFeatures.Php71Set);
             var poNodesFactory = new BasicNodesFactory(poSourceUnit);
             var poErrors = new PhpErrorSink();
@@ -108,7 +108,7 @@ namespace SME.Transformer.Php
             var po = new CodeTransformation();
             po.Kind = TransformationKind.Original;
             var poComposer = new PhpTokenComposer(provider);
-            po.SecurityLevel = new SecurityLevel() { Level = lowestInputLevel, Name = "PO'" };
+            po.SecurityLevel = new SecurityLevel() { Level = lowestInputLevel, Name = "P'" };
             var poRewriter = new PhpChannelRewriter(new TreeContext(poAst), poComposer, provider, poNodesFactory, policy, collector.InputChannels, collector.OutputChannels, collector.SanitizeChannels, po.SecurityLevel, isOriginalProgram: true);
             poRewriter.VisitElement(poAst);
             po.Code = poComposer.Code.ToString();

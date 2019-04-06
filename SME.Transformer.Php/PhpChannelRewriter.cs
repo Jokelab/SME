@@ -156,7 +156,7 @@ namespace SME.Transformer.Php
 
         private void RewriteOutputChannel(Channel outputChannel, DirectFcnCall node)
         {
-            //the original program (PO') captures all output values
+            //the original program (P') captures all output values
             if (_isOriginalProgram || outputChannel.Label.Level == _securityLevel.Level || _securityLevel.Level < _minInputLevel)
             {
                 var functionName = _securityLevel.Level < _minInputLevel ? FunctionNames.CaptureOutput : FunctionNames.StoreOutput;
@@ -210,7 +210,7 @@ namespace SME.Transformer.Php
 
         private void RewriteEchoStmt(Channel outputChannel, EchoStmt node)
         {
-            //the original program (PO') captures all output values
+            //the original program (P') captures all output values
             if (_isOriginalProgram || outputChannel.Label.Level == _securityLevel.Level || _securityLevel.Level < _minInputLevel)
             {
                 var functionName = _securityLevel.Level < _minInputLevel ? FunctionNames.CaptureOutput : FunctionNames.StoreOutput;
@@ -260,7 +260,7 @@ namespace SME.Transformer.Php
 
         private void RewriteEvalEx(Channel outputChannel, EvalEx node)
         {
-            //the original program (PO') captures all output values
+            //the original program (P') captures all output values
             if (_isOriginalProgram || outputChannel.Label.Level == _securityLevel.Level || _securityLevel.Level < _minInputLevel)
             {
                 var functionName = _securityLevel.Level < _minInputLevel ? FunctionNames.CaptureOutput : FunctionNames.StoreOutput;
