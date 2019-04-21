@@ -50,7 +50,7 @@ namespace SME.Shared
                 _readCount[key]++;
             }
         
-            return _stores[id].Read(_readCount[key]);
+            return _stores[id].Get(_readCount[key]);
         }
 
         /// <summary>

@@ -14,7 +14,7 @@ namespace SME.Shared
             _channelValues.Add(value);
         }
 
-        public string Read(int index)
+        public string Get(int index)
         {
             if (index < _channelValues.Count)
             {
