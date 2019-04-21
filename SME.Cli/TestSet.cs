@@ -130,7 +130,14 @@ namespace SME.Cli
             _writer.WriteLine(message);
             if (!string.IsNullOrEmpty(_options.OutputPath))
             {
-                File.AppendAllLines(_options.OutputPath, new string[] { $"{DateTime.Now.ToLongTimeString()}: {message}" });
+                try
+                {
+                    File.AppendAllLines(_options.OutputPath, new string[] { $"{DateTime.Now.ToLongTimeString()}: {message}" });
+                }
+                catch(UnauthorizedAccessException ex)
+                {
+                    System.Diagnostics.Debug.Write(ex);
+                }
             }
         }
 
