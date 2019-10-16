@@ -10,8 +10,8 @@ namespace SME.Cli
     {
         private readonly TestOptions _options;
         private readonly IPolicy _policy;
-        private TextWriter _writer;
-        private List<string> _files = new List<string>();
+        private readonly TextWriter _writer;
+        private readonly List<string> _files = new List<string>();
 
         public TestSet(TestOptions options, TextWriter writer)
         {
@@ -45,7 +45,7 @@ namespace SME.Cli
         {
             var result = new List<TestOutput>();
             int errorCount = 0;
-            var allTasks = new List<Task>();
+            
             var startTime = DateTime.Now;
             //fetch input values
             var parameters = ParametersFileReader.Read(_options.ParametersPath);

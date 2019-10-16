@@ -67,6 +67,10 @@ namespace SME.Cli
         /// <returns></returns>
         private static string GetFileArgument(string[] args, string prefix, string defaultFile)
         {
+            if (string.IsNullOrEmpty(defaultFile))
+            {
+                return string.Empty;
+            }
             var currentPath = Directory.GetCurrentDirectory();// Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             var fullPath = Path.Combine(currentPath, defaultFile);
             if (args.Length > 0)
