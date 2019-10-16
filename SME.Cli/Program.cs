@@ -67,15 +67,16 @@ namespace SME.Cli
         /// <returns></returns>
         private static string GetFileArgument(string[] args, string prefix, string defaultFile)
         {
-            if (string.IsNullOrEmpty(defaultFile))
-            {
-                return string.Empty;
-            }
-            var currentPath = Directory.GetCurrentDirectory();// Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            var fullPath = Path.Combine(currentPath, defaultFile);
             if (args.Length > 0)
             {
                 var inputArg = args.FirstOrDefault(arg => arg.ToLowerInvariant().StartsWith(prefix));
+                if (string.IsNullOrEmpty(defaultFile) && string.IsNullOrEmpty(inputArg))
+                {
+                    return string.Empty;
+                }
+                var currentPath = Directory.GetCurrentDirectory();// Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                var fullPath = Path.Combine(currentPath, defaultFile);
+
                 if (!string.IsNullOrEmpty(inputArg))
                 {
                     fullPath = inputArg.Substring(prefix.Length);
@@ -85,8 +86,9 @@ namespace SME.Cli
                         fullPath = Path.Combine(currentPath, fullPath);
                     }
                 }
+                return fullPath;
             }
-            return fullPath;
+            return string.Empty;
         }
 
         /// <summary>
